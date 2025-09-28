@@ -4,7 +4,12 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"bufio"
+	"context"
 	"fmt"
+	"lain-cli/server"
+	"lain-cli/utils"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -15,25 +20,34 @@ var agCmd = &cobra.Command{
 	Short: "input Your things to lain",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		ctx := context.Background()
+		ask := ""
 		if len(args) > 0 {
-			fmt.Println(args[0])
-			return
-		} else {
-			fmt.Println("no args")
+			ask += "line input:"
+			ask += fmt.Sprintln(args)
 		}
+		// fmt.Println(ask)
+
+		stat, _ := os.Stdin.Stat()
+		ask += "pipe input:"
+		if (stat.Mode() & os.ModeCharDevice) == 0 {
+			scanner := bufio.NewScanner(os.Stdin)
+			for scanner.Scan() {
+				ask += scanner.Text()
+			}
+		}
+
+		fmt.Println(ask)
+		ask = utils.Prompt + ask
+		err := server.CallModelStream(ctx, ask)
+		if err != nil || ask == "" {
+			fmt.Println("place input things to llm")
+			fmt.Printf("server call model error")
+		}
+		fmt.Println()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(agCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// agCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// agCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

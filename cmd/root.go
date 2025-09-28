@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"lain-cli/utils"
 	"os"
 	"strings"
 
@@ -46,11 +47,13 @@ var rootCmd = &cobra.Command{
 		// 渐变着色 Logo
 		banner := gradient(logo, colors)
 
+		yiyanstring := utils.Getyiyn()
+
 		// 描述信息
 		desc := lipgloss.NewStyle().
-			Foreground(lipgloss.Color("82")). // 绿色
+			Foreground(lipgloss.Color(utils.GetRodmoInt())). // 绿色
 			Bold(true).
-			Render("lain-cli 是一个基于 bubbletea + lipgloss 打造的现代 TUI 工具")
+			Render("lain-cli 是一个基于 bubbletea + lipgloss 打造的现代 TUI 工具\n\n\t" + yiyanstring)
 
 		return banner + "\n\n" + desc
 	}(),

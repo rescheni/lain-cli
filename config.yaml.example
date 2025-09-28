@@ -1,0 +1,7 @@
+ai:
+  api_url: "openapi_url"
+  api_key: "api_key"
+  ai_model_name: "model_name"
+yiyan:
+  status: "ON"
+  api_url: "addr"
