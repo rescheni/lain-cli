@@ -5,7 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"lain-cli/config"
+	mui "lain-cli/ui"
+	"os"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
 )
@@ -34,7 +37,7 @@ func LLMInit() error {
 
 }
 
-func CallModel(ctx context.Context, ask string) (string, error) {
+func CallModel(ctx context.Context, ask string) error {
 
 	completion, err := llms.GenerateFromSinglePrompt(ctx,
 		LLLM,
@@ -43,9 +46,28 @@ func CallModel(ctx context.Context, ask string) (string, error) {
 		llms.WithStopWords([]string{"Armstrong"}),
 	)
 	if err != nil {
-		return "", errors.New("server CallModel error")
+		return errors.New("server CallModel error")
 	}
-	return completion, nil
+
+	// 我们把要渲染的 Markdown 内容传进去
+	m := mui.NewMarkdownModel(completion)
+
+	// 2. 创建一个新的 Bubble Tea 程序
+	// tea.WithAltScreen() 进入“全屏”模式
+	// tea.WithMouseCellMotion() 启用鼠标滚轮支持
+	p := tea.NewProgram(
+		m,
+		tea.WithAltScreen(),
+		tea.WithMouseCellMotion(),
+	)
+
+	// 3. 运行！
+	// .Run() 会接管终端，直到用户按 Ctrl+C
+	if _, err := p.Run(); err != nil {
+		fmt.Println("启动 TUI 失败:", err)
+		os.Exit(1)
+	}
+	return nil
 }
 
 func CallModelStream(ctx context.Context, ask string) (err error) {

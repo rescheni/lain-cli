@@ -14,6 +14,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	flagMarkdown bool = false
+)
+
 // agCmd represents the ag command
 var agCmd = &cobra.Command{
 	Use:   "ag",
@@ -37,17 +41,23 @@ var agCmd = &cobra.Command{
 			}
 		}
 
-		fmt.Println(ask)
+		// fmt.Println(ask)
 		ask = utils.Prompt + ask
-		err := server.CallModelStream(ctx, ask)
-		if err != nil || ask == "" {
-			fmt.Println("place input things to llm")
-			fmt.Printf("server call model error")
+		if flagMarkdown {
+			server.CallModel(ctx, ask)
+		} else {
+			err := server.CallModelStream(ctx, ask)
+			if err != nil {
+				// fmt.Println("place input things to llm")
+				fmt.Printf("server call model error")
+			}
 		}
+
 		fmt.Println()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(agCmd)
+	agCmd.Flags().BoolVarP(&flagMarkdown, "markdown", "m", false, "Print Use Markdown")
 }

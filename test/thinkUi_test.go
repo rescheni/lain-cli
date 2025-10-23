@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"lain-cli/exec"
 	"os"
 	"testing"
 
@@ -36,6 +37,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	if m.quitting {
+		exec.OutScanner()
 		return "✔ 完成!\n"
 	}
 	return fmt.Sprintf("%s  正在思考...\n", m.spin.View())
