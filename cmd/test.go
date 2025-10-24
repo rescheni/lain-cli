@@ -24,7 +24,7 @@ var (
 // ---------- testCmd ----------
 var testCmd = &cobra.Command{
 	Use:   "test",
-	Short: "Basic network testing tools  基本的网络测试工具",
+	Short: "Basic network testing tools		#基本的网络测试工具",
 	Long:  `提供网络测试相关功能，包括端口扫描和网速测试。`,
 }
 

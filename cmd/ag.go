@@ -16,6 +16,7 @@ import (
 
 var (
 	flagMarkdown bool = false
+	flagWindow   bool = false
 )
 
 // agCmd represents the ag command
@@ -44,7 +45,7 @@ var agCmd = &cobra.Command{
 		// fmt.Println(ask)
 		ask = utils.Prompt + ask
 		if flagMarkdown {
-			server.CallModel(ctx, ask)
+			server.CallModel(ctx, ask, flagWindow)
 		} else {
 			err := server.CallModelStream(ctx, ask)
 			if err != nil {
@@ -59,5 +60,6 @@ var agCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(agCmd)
-	agCmd.Flags().BoolVarP(&flagMarkdown, "markdown", "m", false, "Print Use Markdown")
+	agCmd.Flags().BoolVarP(&flagMarkdown, "markdown", "m", false, "Print Use Markdown	# 使用 markdown 格式输出")
+	agCmd.Flags().BoolVarP(&flagWindow, "window", "w", false, "print markdown on new window		# 新窗口显示")
 }

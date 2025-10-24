@@ -1,30 +1,59 @@
 package mui
 
 import (
+	"fmt"
+
 	"log"
+	"os"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 )
 
-var Markdown string
+var markdown string
 
 type model_markdown struct {
 	viewport        viewport.Model
-	renderer        *glamour.TermRenderer // 1. 存储渲染器
-	markdownContent string                // 2. 存储原始 Markdown
+	renderer        *glamour.TermRenderer
+	markdownContent string
 }
 
-// (你需要一个 New 函数来初始化)
+func PrintMarkdown(completion string, uw bool) {
+	// 我们把要渲染的 Markdown 内容传进去
+	m := NewMarkdownModel(completion)
+	markdown = completion
+	var p *tea.Program
+	if uw {
+		p = tea.NewProgram(
+			m,
+			tea.WithAltScreen(),
+			tea.WithMouseCellMotion(),
+		)
+	} else {
+		p = tea.NewProgram(
+			m,
+			// tea.WithAltScreen(),
+			tea.WithMouseCellMotion(),
+		)
+	}
+
+	// 3. 运行！
+	// .Run() 会接管终端，直到用户按 Ctrl+C
+	if _, err := p.Run(); err != nil {
+		fmt.Println("启动 TUI 失败:", err)
+		os.Exit(1)
+	}
+}
+
 func NewMarkdownModel(content string) model_markdown {
 	// 1. 创建 viewport
-	vp := viewport.New(80, 20) // 初始大小
+	vp := viewport.New(50, 5) // 初始大小
 
 	// 2. 创建 renderer
 	renderer, err := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
-		glamour.WithWordWrap(80), // 初始宽度
+		glamour.WithWordWrap(60), // 初始宽度
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -39,6 +68,7 @@ func NewMarkdownModel(content string) model_markdown {
 		renderer:        renderer,
 		markdownContent: content,
 	}
+
 }
 
 func (m model_markdown) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -71,6 +101,8 @@ func (m model_markdown) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyCtrlC:
 			return m, tea.Quit
+		case tea.KeyEsc:
+			return m, tea.Quit
 		}
 	}
 	m.viewport, cmd = m.viewport.Update(msg)
@@ -87,9 +119,9 @@ func (m model_markdown) Init() tea.Cmd {
 
 	renderer, _ := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
-		glamour.WithWordWrap(80), // 初始宽度
+		glamour.WithWordWrap(50), // 初始宽度
 	)
-	styledMarkdown, _ := renderer.Render(Markdown)
+	styledMarkdown, _ := renderer.Render(markdown)
 	m.viewport.SetContent(styledMarkdown)
 	return nil
 }

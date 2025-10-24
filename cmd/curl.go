@@ -10,7 +10,7 @@ import (
 // curlCmd represents the curl command
 var curlCmd = &cobra.Command{
 	Use:   "curl",
-	Short: "HTTP Test Tools",
+	Short: "HTTP Test Tools		# 基本的http 测试工具",
 	Long: `
 HTTP Test tools 
 支持 POST,GET,PUT 等协议
