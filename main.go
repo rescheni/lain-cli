@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"lain-cli/cmd"
 	"lain-cli/server"
-	"lain-cli/utils"
 )
 
 func main() {
@@ -16,6 +15,5 @@ func main() {
 	if err != nil {
 		fmt.Println("server LLM init Error")
 	}
-	utils.Initprompt()
 	cmd.Execute()
 }

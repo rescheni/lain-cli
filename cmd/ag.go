@@ -7,8 +7,10 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"lain-cli/config"
 	"lain-cli/server"
-	"lain-cli/utils"
+	"lain-cli/tools"
+
 	"os"
 
 	"github.com/spf13/cobra"
@@ -25,13 +27,22 @@ var agCmd = &cobra.Command{
 	Short: "input Your things to lain",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		// fmt.Println(os.Getppid(), len(args))
+
+		if len(args) == 0 || len(args) > 1 && args[0] == "" {
+			fmt.Println("Please enter a request")
+			return
+		}
+
 		ctx := context.Background()
 		ask := ""
 		if len(args) > 0 {
 			ask += "line input:"
 			ask += fmt.Sprintln(args)
 		}
-		// fmt.Println(ask)
+		if config.Conf.Context.Enabled {
+			tools.LLMCTX.Init()
+		}
 
 		stat, _ := os.Stdin.Stat()
 		ask += "pipe input:"
@@ -42,14 +53,17 @@ var agCmd = &cobra.Command{
 			}
 		}
 
+		if config.Conf.Context.Enabled {
+			tools.LLMCTX.Add(ask + "\n")
+			ask = tools.LLMCTX.Getcontext() + ask
+
+		}
 		// fmt.Println(ask)
-		ask = utils.Prompt + ask
 		if flagMarkdown {
 			server.CallModel(ctx, ask, flagWindow)
 		} else {
 			err := server.CallModelStream(ctx, ask)
 			if err != nil {
-				// fmt.Println("place input things to llm")
 				fmt.Printf("server call model error")
 			}
 		}

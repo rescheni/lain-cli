@@ -17,9 +17,16 @@ type Yiyan struct {
 	Api_url string `yaml:"api_url"`
 }
 
+type Context struct {
+	Max_length int    `yaml:"max_length"`
+	Local      string `yaml:"local"`
+	Enabled    bool   `yaml:"enabled"`
+}
+
 type Config struct {
-	Ai    Ai    `yaml:"ai"`
-	Yiyan Yiyan `yaml:"yiyan"`
+	Ai      Ai      `yaml:"ai"`
+	Yiyan   Yiyan   `yaml:"yiyan"`
+	Context Context `yaml:"context"`
 }
 
 var Conf Config

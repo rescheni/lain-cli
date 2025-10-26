@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"lain-cli/config"
+	"lain-cli/tools"
 	mui "lain-cli/ui"
 
 	"github.com/tmc/langchaingo/llms"
@@ -46,23 +48,37 @@ func CallModel(ctx context.Context, ask string, useWindwos bool) error {
 	if err != nil {
 		return errors.New("server CallModel error")
 	}
+
+	if config.Conf.Context.Enabled {
+		tools.LLMCTX.Add(completion)
+	}
+
 	mui.PrintMarkdown(completion, useWindwos)
 	return nil
 }
 
 func CallModelStream(ctx context.Context, ask string) (err error) {
 
+	ai_ctx := ""
 	_, err = LLLM.Call(
 		ctx,
 		ask,
 		llms.WithTemperature(0.7),
 		llms.WithStreamingFunc(func(ctx context.Context, chunk []byte) error {
-			fmt.Print(string(chunk)) // 每次收到一段 token 就打印
+			schunk := string(chunk)
+			fmt.Print(schunk) // 每次收到一段 token 就打印
+			if config.Conf.Context.Enabled {
+				ai_ctx += schunk
+			}
 			return nil
 		}),
 	)
 	if err != nil {
 		return err
+	}
+	if config.Conf.Context.Enabled {
+		// 写入上下文
+		tools.LLMCTX.Add(ai_ctx)
 	}
 
 	return nil
