@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "rss-reader-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "rss-reader-mcp"
+      ]
+    },
+    "mcp-chinese-fortune": {
+        "command": "npx",
+        "args": [
+            "-y",
+            "mcp-chinese-fortune"
+        ]
+    },
+    "whois": {
+      "args": [
+        "-y",
+        "@bharathvaj/whois-mcp@latest"
+      ],
+      "command": "npx"
+    }
+  }
+}

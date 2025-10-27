@@ -23,10 +23,14 @@ type Context struct {
 	Enabled    bool   `yaml:"enabled"`
 }
 
+type Mcp struct {
+	Json string `yaml:"json"`
+}
 type Config struct {
 	Ai      Ai      `yaml:"ai"`
 	Yiyan   Yiyan   `yaml:"yiyan"`
 	Context Context `yaml:"context"`
+	Mcp     Mcp     `yaml:"mcp"`
 }
 
 var Conf Config
