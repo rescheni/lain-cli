@@ -26,11 +26,15 @@ type Context struct {
 type Mcp struct {
 	Json string `yaml:"json"`
 }
+type Logo struct {
+	Logo_txt string `yaml:"logo_txt"`
+}
 type Config struct {
 	Ai      Ai      `yaml:"ai"`
 	Yiyan   Yiyan   `yaml:"yiyan"`
 	Context Context `yaml:"context"`
 	Mcp     Mcp     `yaml:"mcp"`
+	Logo    Logo    `yaml:"logo"`
 }
 
 var Conf Config

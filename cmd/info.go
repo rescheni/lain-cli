@@ -4,6 +4,8 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"lain-cli/tools"
+
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +15,7 @@ var infoCmd = &cobra.Command{
 	Short: "show device info",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-
+		tools.BasePrint()
 	},
 }
 
