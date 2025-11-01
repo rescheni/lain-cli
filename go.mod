@@ -7,10 +7,11 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/glamour v0.10.0
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
+	github.com/gdamore/tcell/v2 v2.8.1
 	github.com/gizak/termui/v3 v3.1.0
 	github.com/modelcontextprotocol/go-sdk v1.0.0
 	github.com/muesli/termenv v0.16.0
-	github.com/shirou/gopsutil v3.21.11+incompatible
+	github.com/rivo/tview v0.42.0
 	github.com/shirou/gopsutil/v4 v4.25.5
 	github.com/showwin/speedtest-go v1.7.10
 	github.com/spf13/cobra v1.10.1
@@ -32,6 +33,7 @@ require (
 	github.com/dlclark/regexp2 v1.11.0 // indirect
 	github.com/ebitengine/purego v0.8.4 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
+	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/google/jsonschema-go v0.3.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect

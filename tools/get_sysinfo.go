@@ -134,11 +134,7 @@ func getCpuinfo(ss []string) {
 	if len(info) == 0 {
 		ss[num] = "nil"
 	}
-	cinfo += fmt.Sprintf("%s Cores %d", info[0].ModelName, info[0].Cores)
-
-	for i := 1; i < len(info); i++ {
-		cinfo += fmt.Sprintf("\t%s Cores%d", info[0].ModelName, info[0].Cores)
-	}
+	cinfo += fmt.Sprintf("%s Cores %d", info[0].ModelName+" "+fmt.Sprintf("%.1f MHZ", info[0].Mhz), info[0].Cores)
 	ss[num] = cinfo
 
 }

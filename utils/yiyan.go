@@ -19,7 +19,6 @@ func Getyiyn() string {
 	if status != "ON" {
 		return ""
 	}
-
 	var infoo info
 	resp, err := http.Get(url + "?encode=json")
 	if err != nil {

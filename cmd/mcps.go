@@ -50,7 +50,7 @@ var mcpsCmd = &cobra.Command{
 
 			for i := 2; i < len(args); i++ {
 
-				vals := strings.Split(args[i], ":")
+				vals := strings.Split(args[i], "=")
 				val[vals[0]] = vals[1]
 			}
 

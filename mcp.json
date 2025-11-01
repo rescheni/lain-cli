@@ -20,6 +20,13 @@
         "@bharathvaj/whois-mcp@latest"
       ],
       "command": "npx"
+    },
+    "fetch": {
+      "args": [
+        "mcp-server-fetch"
+      ],
+      "command": "uvx"
     }
   }
 }
+
