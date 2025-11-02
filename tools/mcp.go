@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -86,7 +85,7 @@ func initMCPs(configPath string) error {
 		}
 
 		Mcps[name] = session
-		time.Sleep(500 * time.Millisecond)
+		// time.Sleep(500 * time.Millisecond)
 	}
 
 	fmt.Println("✅ 所有 MCP 初始化完成")
@@ -96,10 +95,10 @@ func initMCPs(configPath string) error {
 // 列出所有 MCP 名称
 func ListMCPs() []string {
 	mcps := []string{}
-	fmt.Println("当前连接的 MCP:")
+	// fmt.Println("当前连接的 MCP:")
 	for name := range Mcps {
 		mcps = append(mcps, name)
-		fmt.Printf(" - %s\n", name)
+		// fmt.Printf(" - %s\n", name)
 	}
 	return mcps
 }
@@ -124,13 +123,13 @@ func ListMCPTools(ctx context.Context, name string) {
 	}
 
 	fmt.Printf("🧰 %s 可用工具:\n", name)
-	for _, tool := range resp.Tools {
-		fmt.Printf(" - %s: %s\n", tool.Name, tool.Description)
+	for i, tool := range resp.Tools {
+		fmt.Printf("\t%d - %s: %s\n", i+1, tool.Name, tool.Description)
 	}
 }
 
 // 调用工具
-func CallTool(ctx context.Context, name, tool string, args map[string]any) {
+func CallTool(ctx context.Context, name, tool string, args map[string]any, tofile string) {
 	sess, ok := Mcps[name]
 	if !ok {
 		fmt.Printf("❌ 未找到 MCP: %s\n", name)
@@ -166,6 +165,14 @@ func CallTool(ctx context.Context, name, tool string, args map[string]any) {
 		if text, ok := c.(*mcp.TextContent); ok {
 			mds += text.Text
 		}
+	}
+	if tofile != "" {
+		file, err := os.OpenFile(tofile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0660)
+		if err != nil {
+			fmt.Println("Open File error")
+		}
+		defer file.Close()
+		file.Write([]byte(mds))
 	}
 	mui.PrintMarkdown(mds, false)
 }

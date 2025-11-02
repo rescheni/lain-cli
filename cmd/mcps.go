@@ -4,12 +4,19 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"bufio"
 	"context"
+	"fmt"
 	"lain-cli/tools"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/spf13/cobra"
 )
+
+var tofile string
 
 // mcpsCmd represents the mcps command
 var mcpsCmd = &cobra.Command{
@@ -36,10 +43,11 @@ var mcpsCmd = &cobra.Command{
 		// fmt.Println("=====================", args)
 		tools.Init()
 		ctx := context.Background()
-		tools.ListMCPs()
-		// for _, name := range _mcps {
-		// 	tools.ListMCPTools(ctx, name)
-		// }
+		_mcps := tools.ListMCPs()
+		for i, name := range _mcps {
+			fmt.Println(i, name)
+		}
+
 		if len(args) == 1 {
 			tools.ListMCPTools(ctx, args[0])
 		}
@@ -50,7 +58,7 @@ var mcpsCmd = &cobra.Command{
 
 			for i := 2; i < len(args); i++ {
 
-				vals := strings.Split(args[i], "=")
+				vals := strings.Split(args[i], "====")
 				val[vals[0]] = vals[1]
 			}
 
@@ -59,11 +67,73 @@ var mcpsCmd = &cobra.Command{
 				args[0],
 				args[1],
 				val,
+				tofile,
 			)
+		}
+	},
+}
+
+// 交互方式调用mcp
+var replCmd = &cobra.Command{
+	Use:   "repl",
+	Short: "call mcp interactive",
+	Long:  `交互调用mcp`,
+	Run: func(cmd *cobra.Command, args []string) {
+
+		// 捕获 Ctrl+C [TODO] 一点小问题
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGINT, syscall.SIGINT)
+		signal.Notify(sigs, syscall.SIGINT, syscall.SIGQUIT)
+
+		// 初始化mcp
+		tools.Init()
+		ctx := context.Background()
+		mcps := tools.ListMCPs()
+		// ls 		 								-- 列出所有mcp
+		// list [mcp] 								-- 列出某个mcp的工具
+		// exec [mcp] [mcp tools] [vals]			-- 运行某个mcp 工具
+		// 交互开始
+		for {
+			// line := ""
+			fmt.Print("Lain-> ")
+			// fmt.Scanln(&line)
+			reader := bufio.NewReader(os.Stdin)
+			line, _ := reader.ReadString('\n')
+			line = strings.TrimSpace(line)
+			arg := strings.Split(line, " ")
+
+			fmt.Println(line)
+			var ok bool
+			go func() {
+				_, ok = <-sigs
+			}()
+			if len(arg) == 1 && arg[0] == "exit" || ok {
+				fmt.Println("Exited")
+				panic("User Exit")
+			} else if len(arg) == 1 && arg[0] == "ls" {
+				fmt.Println("MCP list:")
+				for i, v := range mcps {
+					fmt.Printf("\t %d-%s\n", i+1, v)
+				}
+			} else if len(arg) == 2 && arg[0] == "list" {
+				tools.ListMCPTools(ctx, arg[1])
+			} else if len(arg) >= 3 && arg[0] == "exec" {
+				vals := make(map[string]any)
+				for i := 3; i < len(arg); i++ {
+					temp := strings.Split(arg[i], "===")
+					vals[temp[0]] = temp[1]
+				}
+				tools.CallTool(ctx, arg[1], arg[2], vals, tofile)
+			} else {
+				fmt.Println("Not find command")
+			}
+
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(mcpsCmd)
+	mcpsCmd.AddCommand(replCmd)
+	mcpsCmd.Flags().StringVarP(&tofile, "tofile", "f", "", "Mcp print to file	# 将mcp的输出同时到文件")
 }
