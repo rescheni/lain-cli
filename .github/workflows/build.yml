@@ -1,5 +1,9 @@
 name: Build & Release Lain-CLI
 
+
+permissions:
+  contents: write
+
 on:
   push:
     tags:
@@ -8,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: Build binaries for macOS & Linux
+    name: Build Lain-cli binaries for macOS & Linux
     runs-on: ubuntu-latest
 
     strategy:
