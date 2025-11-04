@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"lain-cli/config"
-	"lain-cli/logs"
-	mui "lain-cli/ui"
 	"os"
 	"os/exec"
 	"regexp"
 
+	mui "github.com/rescheni/lain-cli/internal/ui"
+
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/rescheni/lain-cli/config"
+	"github.com/rescheni/lain-cli/logs"
 )
 
 // MCPConfig 顶层结构

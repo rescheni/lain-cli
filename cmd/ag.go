@@ -7,10 +7,11 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"lain-cli/config"
-	"lain-cli/logs"
-	"lain-cli/server"
-	"lain-cli/tools"
+
+	"github.com/rescheni/lain-cli/config"
+	"github.com/rescheni/lain-cli/internal/server"
+	"github.com/rescheni/lain-cli/internal/tools"
+	"github.com/rescheni/lain-cli/logs"
 
 	"os"
 

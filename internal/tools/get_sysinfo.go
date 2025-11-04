@@ -3,8 +3,7 @@ package tools
 import (
 	"bufio"
 	"fmt"
-	"lain-cli/config"
-	"lain-cli/logs"
+
 	"net"
 	"os"
 	"os/exec"
@@ -14,6 +13,8 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
+	config "github.com/rescheni/lain-cli/config"
+	logs "github.com/rescheni/lain-cli/logs"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"

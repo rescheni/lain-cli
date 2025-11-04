@@ -7,12 +7,13 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"lain-cli/logs"
-	"lain-cli/tools"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
+
+	"github.com/rescheni/lain-cli/internal/tools"
+	logs "github.com/rescheni/lain-cli/logs"
 
 	"github.com/spf13/cobra"
 )

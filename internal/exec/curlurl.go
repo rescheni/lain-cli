@@ -3,17 +3,19 @@ package exec
 import (
 	"fmt"
 	"io"
-	"lain-cli/logs"
-	mui "lain-cli/ui"
 	"net/http"
 	"strings"
+
+	mui "github.com/rescheni/lain-cli/internal/ui"
+	"github.com/rescheni/lain-cli/logs"
 )
 
-func Curl(method string, url string) error {
+func Curl(method string, url string) {
 
 	var respBody string
 	var err error
 	method = strings.ToUpper(method)
+	// 当使用Post|PUT|PATCH的时候 输入json请求参数
 	if method == "POST" || method == "PUT" || method == "PATCH" {
 		var req string
 		req, respBody, err = mui.OpenTextView(method, url)
@@ -24,6 +26,7 @@ func Curl(method string, url string) error {
 		fmt.Println(req)
 		fmt.Println(respBody)
 	} else {
+		// get 等请求直接发送
 		req, err := http.NewRequest(method, url, nil)
 		if err != nil {
 			logs.Err("", err)
@@ -37,5 +40,4 @@ func Curl(method string, url string) error {
 		bodyBytes, _ := io.ReadAll(resp.Body)
 		fmt.Println(string(bodyBytes))
 	}
-	return err
 }

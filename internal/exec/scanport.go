@@ -3,14 +3,15 @@ package exec
 import (
 	"fmt"
 
-	"lain-cli/logs"
-	"lain-cli/tools"
-	mui "lain-cli/ui"
 	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/rescheni/lain-cli/internal/tools"
+	mui "github.com/rescheni/lain-cli/internal/ui"
+	logs "github.com/rescheni/lain-cli/logs"
 
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"

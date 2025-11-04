@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"lain-cli/logs"
+
+	"github.com/rescheni/lain-cli/logs"
+
 	"net/http"
 	"strings"
 	"time"
@@ -17,14 +19,14 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// responseMsg 是一个 "消息", 在 HTTP 请求完成后发回
+// responseMsg 在 HTTP 请求完成后发回
 type responseMsg struct {
 	status int
 	body   string
 	err    error
 }
 
-// model_input 是我们 TUI 应用的 "状态"
+// TUI 应用状态
 type model_input struct {
 	url      string         // 目标 URL
 	method   string         // HTTP 方法 (POST, PUT, PATCH)
@@ -35,8 +37,7 @@ type model_input struct {
 	aborted  bool           // 用户是否按 Ctrl+C 中止了
 }
 
-// initialModel 创建我们的初始状态
-// (已修改: 接收 method)
+// initialModel 创建初始状态
 func initialModel(url string, method string) model_input {
 	ta := textarea.New()
 	ta.Placeholder = "Place Input json\n{\n  \"key\": \"value\"\n}\n..."
@@ -98,7 +99,6 @@ func (m model_input) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.sending = true
 			m.textarea.Blur()
 
-			// (已修改: 传递 method)
 			return m, sendRequestCmd(m.url, m.method, jsonStr)
 
 		default:
@@ -115,14 +115,10 @@ func (m model_input) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		// 成功！保存响应
 		m.response = fmt.Sprintf("HTTP Status: %d\n\n%s", msg.status, msg.body)
-
-		// (已修改) 成功后，我们也直接退出 TUI
-		// TUI 会在退出时把 response 返回给调用者
 		return m, tea.Quit
 
-	// 消息类型：窗口大小调整
+	// 窗口大小调整
 	case tea.WindowSizeMsg:
 		m.textarea.SetWidth(msg.Width - 2)
 	}
@@ -135,21 +131,17 @@ func (m model_input) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 var (
 	titleStyle = lipgloss.NewStyle().Background(lipgloss.Color("62")).Foreground(lipgloss.Color("230")).Padding(0, 1)
 	errorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Padding(1, 0)
-	respStyle  = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(0, 1)
+	// respStyle  = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(0, 1)
 )
 
 func (m model_input) View() string {
-	// (已修改) View 不再需要显示 response, 因为成功后 TUI 会立刻退出
 
-	// 2. 如果正在发送...
 	if m.sending {
 		return "\n  Sending request to " + m.url + " ..."
 	}
 
-	// 3. 默认视图 (编辑器)
 	var b strings.Builder
 
-	// (已修改: 标题显示 Method)
 	b.WriteString(titleStyle.Render(fmt.Sprintf("%s to %s", m.method, m.url)))
 	b.WriteString("\n\n")
 	b.WriteString(m.textarea.View())
@@ -163,7 +155,6 @@ func (m model_input) View() string {
 	return b.String()
 }
 
-// sendRequestCmd (已修改: 接收 method)
 func sendRequestCmd(url, method, jsonStr string) tea.Cmd {
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -195,11 +186,6 @@ func sendRequestCmd(url, method, jsonStr string) tea.Cmd {
 	}
 }
 
-// --- 痛点 3 & 4 修复: 核心入口函数 ---
-
-// OpenTextView (已修改)
-// 这是你的 lain-cli 应该调用的唯一函数
-// 它返回 (输入的 JSON, 返回的 Body, 错误)
 func OpenTextView(method string, url string) (string, string, error) {
 
 	p := tea.NewProgram(initialModel(url, method), tea.WithAltScreen())
@@ -214,19 +200,13 @@ func OpenTextView(method string, url string) (string, string, error) {
 		return "", "", errors.New("TUI 模型转换失败")
 	}
 
-	// 检查是否是用户主动中止
 	if m.aborted {
 		return "", "", errors.New("请求中止")
 	}
 
-	// 检查是否成功（即 response 是否被填入）
 	if m.response == "" {
-		// 这可能发生在 JSON 校验失败时用户退出了 (虽然我们标记了aborted, 但这是双重保险)
 		return "", "", errors.New("未收到响应")
 	}
 
-	// 成功！返回 TUI 里的数据
-	// m.textarea.Value() 是你输入的历史 JSON
-	// m.response 是服务器返回的结果
 	return m.textarea.Value(), m.response, nil
 }

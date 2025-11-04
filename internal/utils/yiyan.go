@@ -3,8 +3,9 @@ package utils
 import (
 	"encoding/json"
 	"io"
-	"lain-cli/config"
 	"net/http"
+
+	config "github.com/rescheni/lain-cli/config"
 )
 
 type info struct {
@@ -14,11 +15,13 @@ type info struct {
 
 func Getyiyn() string {
 
+	// 检查配置文件 一言开关是否打开？
 	status := config.Conf.Yiyan.Status
 	url := config.Conf.Yiyan.Api_url
 	if status != "ON" {
 		return ""
 	}
+	// 发送get请求 json 数据
 	var infoo info
 	resp, err := http.Get(url + "?encode=json")
 	if err != nil {
@@ -29,11 +32,10 @@ func Getyiyn() string {
 	if err != nil {
 		return "parse body err"
 	}
-
+	// 	解析数据
 	err = json.Unmarshal(s, &infoo)
 	if err != nil {
 		return "json.Unmarshal err "
 	}
-
 	return infoo.Hitokoto + "\n\t\t\t\t\t\t————" + infoo.From
 }

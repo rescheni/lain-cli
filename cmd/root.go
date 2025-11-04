@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"lain-cli/utils"
 	"os"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/rescheni/lain-cli/internal/utils"
 	"github.com/spf13/cobra"
 )
 

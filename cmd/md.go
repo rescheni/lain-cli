@@ -4,15 +4,17 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"lain-cli/logs"
-	mui "lain-cli/ui"
 	"os"
+
+	mui "github.com/rescheni/lain-cli/internal/ui"
+
+	"github.com/rescheni/lain-cli/logs"
 
 	"github.com/spf13/cobra"
 )
 
 var mdCmd = &cobra.Command{
-	Use:   "md",
+	Use: "md",
 	Short: "rendering markdown		# 在 terminal 查看markdown 更好的方式",
 	Long: `
 lain md filename.md

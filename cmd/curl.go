@@ -1,15 +1,15 @@
 package cmd
 
 import (
-	"lain-cli/exec"
-	"lain-cli/logs"
+	"github.com/rescheni/lain-cli/internal/exec"
+	logs "github.com/rescheni/lain-cli/logs"
 
 	"github.com/spf13/cobra"
 )
 
 // curlCmd represents the curl command
 var curlCmd = &cobra.Command{
-	Use:   "curl",
+	Use: "curl",
 	Short: "HTTP Test Tools		# 基本的http 测试工具",
 	Long: `
 HTTP Test tools 
@@ -23,12 +23,7 @@ lain curl post url  #  像目标服务器发送POST请求
 			logs.Err("Place input [GET/POST...] URL")
 			return
 		}
-		err := exec.Curl(args[0], args[1])
-		if err != nil {
-			logs.Err("", err)
-			return
-		}
-
+		exec.Curl(args[0], args[1])
 	},
 }
 

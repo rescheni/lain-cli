@@ -74,7 +74,7 @@ Neofetch 风格信息展示
 
 项目结构
 ```bash
-lain-cli/
+github.com/rescheni/lain-cli/
 ├── cmd/            # 各子命令定义（Cobra）
 ├── tools/          # 工具模块封装
 ├── tui/            # TUI 视图组件

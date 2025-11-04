@@ -2,7 +2,9 @@ package exec
 
 import (
 	"fmt"
-	mui "lain-cli/ui"
+
+	mui "github.com/rescheni/lain-cli/internal/ui"
+	"github.com/rescheni/lain-cli/logs"
 
 	"log"
 	"sync"
@@ -14,12 +16,12 @@ import (
 	"github.com/showwin/speedtest-go/speedtest"
 )
 
-// /
 type net_time struct {
 	mbps float64
 	time int64
 }
 
+// 回调函数
 var callback func()
 
 func runSpeedTest(downChan, upChan chan net_time) {
@@ -32,9 +34,10 @@ func runSpeedTest(downChan, upChan chan net_time) {
 	for _, s := range targets {
 		s.PingTest(nil)
 		dm := s.Context.Manager
-		// 设置回调
+		// 设置SpeedTrst 下载回调
 		dm.SetCallbackDownload(func(rate speedtest.ByteRate) {
 			select {
+			// 发送到下载缓冲区
 			case downChan <- net_time{
 				mbps: rate.Mbps(),
 				time: time.Since(start).Milliseconds(),
@@ -42,8 +45,10 @@ func runSpeedTest(downChan, upChan chan net_time) {
 			default:
 			}
 		})
+		// 设置SpeedTrst 上传回调
 		dm.SetCallbackUpload(func(rate speedtest.ByteRate) {
 			select {
+			// 发送到上传缓冲区
 			case upChan <- net_time{
 				mbps: rate.Mbps(),
 				time: time.Since(start).Milliseconds(),
@@ -54,28 +59,24 @@ func runSpeedTest(downChan, upChan chan net_time) {
 		// 并行执行上下行测试
 		var wg sync.WaitGroup
 		wg.Add(2)
-
 		go func() {
 			defer wg.Done()
 			s.DownloadTest()
 		}()
-
 		go func() {
 			defer wg.Done()
 			s.UploadTest()
 		}()
-
 		wg.Wait()
 
+		// 优先接收 SpeetTest 测试完成的结果给 Tui 的输出表格的库
 		callback = func() {
 			mui.TuiPrintTable([]string{"Latency", "Download", "Upload"}, [][]string{
 				{fmt.Sprint(s.Latency), fmt.Sprintf("%.2fMbps", s.DLSpeed.Mbps()), fmt.Sprintf("%.2fMbps", s.ULSpeed.Mbps())},
 			})
 		}
-
 		s.Context.Reset()
 	}
-
 	close(downChan)
 	close(upChan)
 }
@@ -99,9 +100,10 @@ func tuiOpen(downChan, upChan chan net_time) {
 	// 临时缓冲，用于接收测速数据
 	var downBuf, upBuf []float64
 
+	// 初始化 UI 事件
 	uiEvents := ui.PollEvents()
-
 	for {
+		// 开启 UI 接收缓冲区数据同步到ui
 		select {
 		case d, ok := <-downChan:
 			if ok {
@@ -139,42 +141,39 @@ func tuiOpen(downChan, upChan chan net_time) {
 					lc.Data[1] = append(lc.Data[1], lc.Data[1][0])
 				}
 			}
+			// 渲染
 			ui.Render(lc)
+			// 设置 退出指令
 		case e := <-uiEvents:
 			if e.ID == "q" || e.ID == "<C-c>" {
 				return
 			}
 		}
+		// 接收值空
 		if downChan == nil && upChan == nil {
 			break
 		}
 	}
 }
 
-func RunSpeedTestUI() {
-	upChan := make(chan net_time, 1000)
-	downChan := make(chan net_time, 1000)
-
-	go func() {
-		runSpeedTest(downChan, upChan)
-
-	}()
-	tuiOpen(downChan, upChan)
-	callback()
-}
-
-func RunSpeedTestNUI() {
+func RunSpeedTestUI(nui bool) {
 	upChan := make(chan net_time, 1000)
 	downChan := make(chan net_time, 1000)
 
 	go func() {
 		runSpeedTest(downChan, upChan)
 	}()
-
-	for down := range downChan {
-		up := <-upChan
-		fmt.Printf("[Download] %.2fMbps  %dms\n", down.mbps, down.time)
-		fmt.Printf("[Upload]   %.2fMbps  %dms\n", up.mbps, up.time)
+	if nui {
+		logs.Info("使用终端测试工具")
+		for down := range downChan {
+			up := <-upChan
+			fmt.Println("[  Type  ]   Speed    Times")
+			fmt.Printf("[Download]   %.2fMbps  %dms\n", down.mbps, down.time)
+			fmt.Printf("[ Upload ]   %.2fMbps  %dms\n", up.mbps, up.time)
+		}
+	} else {
+		logs.Info("使用ui测速工具")
+		tuiOpen(downChan, upChan)
 	}
 	callback()
 }

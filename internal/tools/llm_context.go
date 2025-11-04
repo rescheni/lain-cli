@@ -2,14 +2,15 @@ package tools
 
 import (
 	"fmt"
-	"lain-cli/config"
-	"lain-cli/logs"
-	"lain-cli/utils"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
+
+	"github.com/rescheni/lain-cli/config"
+	"github.com/rescheni/lain-cli/internal/utils"
+	"github.com/rescheni/lain-cli/logs"
 )
 
 type llmctx struct {

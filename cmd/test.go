@@ -5,16 +5,17 @@ package cmd
 
 import (
 	"fmt"
-	"lain-cli/exec"
-	"lain-cli/logs"
-	"lain-cli/tools"
 	"strconv"
+
+	"github.com/rescheni/lain-cli/internal/exec"
+	"github.com/rescheni/lain-cli/internal/tools"
+	logs "github.com/rescheni/lain-cli/logs"
 
 	"github.com/spf13/cobra"
 )
 
 var (
-	uiFlag   bool
+	nuiFlag  bool
 	openFlag bool
 	start    int
 	end      int
@@ -93,14 +94,7 @@ var testSpeedCmd = &cobra.Command{
   lain test speed -u    # 使用 UI 模式测速
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if uiFlag {
-			logs.Info("开始 UI 模式网速测试...")
-			exec.RunSpeedTestUI()
-		} else {
-			logs.Info("开始命令行网速测试...")
-			exec.RunSpeedTestNUI()
-		}
-
+		exec.RunSpeedTestUI(nuiFlag)
 		return nil
 	},
 }
@@ -118,5 +112,5 @@ func init() {
 	testPortCmd.Flags().BoolVarP(&openFlag, "isopen", "o", false, "View all open ports")
 
 	// test speed flags
-	testSpeedCmd.Flags().BoolVarP(&uiFlag, "ui", "u", false, "Use UI mode for speed test")
+	testSpeedCmd.Flags().BoolVarP(&nuiFlag, "nui", "n", false, "Use UI mode for speed test")
 }

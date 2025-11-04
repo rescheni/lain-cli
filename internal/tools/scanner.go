@@ -3,11 +3,12 @@ package tools
 import (
 	"crypto/tls"
 	"fmt"
-	"lain-cli/base"
 	"net"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/rescheni/lain-cli/internal/base"
 )
 
 type info struct {

@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"lain-cli/logs"
 	"os"
+
+	logs "github.com/rescheni/lain-cli/logs"
 )
 
 func Getprompt() string {

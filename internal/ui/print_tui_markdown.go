@@ -1,13 +1,13 @@
 package mui
 
 import (
-	"lain-cli/logs"
 	"log"
 	"os"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
+	"github.com/rescheni/lain-cli/logs"
 )
 
 var markdown string
@@ -55,7 +55,7 @@ func NewMarkdownModel(content string) model_markdown {
 		glamour.WithWordWrap(60), // 初始宽度
 	)
 	if err != nil {
-		log.Fatal(err)
+		logs.Err("", err)
 	}
 
 	// 3. 渲染一次

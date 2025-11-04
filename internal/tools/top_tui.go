@@ -3,7 +3,7 @@ package tools
 import (
 	"context"
 	"fmt"
-	"lain-cli/logs"
+
 	"os"
 	"sort"
 	"strconv"
@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gdamore/tcell/v2"
+	logs "github.com/rescheni/lain-cli/logs"
 	"github.com/rivo/tview"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"

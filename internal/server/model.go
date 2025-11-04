@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"lain-cli/config"
-	"lain-cli/tools"
-	mui "lain-cli/ui"
+	config "github.com/rescheni/lain-cli/config"
+	"github.com/rescheni/lain-cli/internal/tools"
+	mui "github.com/rescheni/lain-cli/internal/ui"
 
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"

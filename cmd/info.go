@@ -4,8 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"lain-cli/tools"
-
+	"github.com/rescheni/lain-cli/internal/tools"
 	"github.com/spf13/cobra"
 )
 
