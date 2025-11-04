@@ -1,0 +1,86 @@
+# ---------------------------------------------------------
+# 🧭 Lain-CLI 自动构建与发布工作流
+# 构建 macOS & Linux 平台的 amd64 / arm64 二进制文件
+# 并在打 Tag 时自动创建 Release 上传产物
+# ---------------------------------------------------------
+name: Build Lain-CLI
+
+# === 触发条件 ===
+on:
+  push:                     # 每次推送到 main 分支触发构建
+    branches: [ main ]
+  pull_request:             # PR 提交到 main 时也执行构建验证
+    branches: [ main ]
+  schedule:                 # 每周日 0 点自动构建（定时构建）
+    - cron: '0 0 * * 0'
+  workflow_dispatch:        # 支持手动触发（可在 GitHub Actions 页面点击 Run）
+
+# === 构建任务定义 ===
+jobs:
+  build:
+    name: Build binaries for macOS & Linux
+    runs-on: ubuntu-latest  # 使用最新 Ubuntu runner 构建环境
+
+    strategy:
+      matrix:
+        goos: [darwin, linux]     # 操作系统目标
+        goarch: [amd64, arm64]    # CPU 架构目标
+        # => 最终会构建 4 个版本：
+        #    darwin-amd64, darwin-arm64, linux-amd64, linux-arm64
+
+    steps:
+      # 1️⃣ 拉取项目源码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ 安装指定 Go 版本（自动缓存依赖）
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'      # 你项目使用的 Go 版本，可按需调整
+
+      # 3️⃣ 构建阶段
+      - name: Build binary
+        run: |
+          mkdir -p dist
+          BIN_NAME=lain-cli-${{ matrix.goos }}-${{ matrix.goarch }}
+          echo "Building $BIN_NAME ..."
+          # GOOS/GOARCH 指定目标系统与架构
+          # -ldflags 参数可用于去除调试信息 (-s -w)
+          # 也可注入版本号: "-s -w -X main.Version=${{ github.ref_name }}"
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+            go build -ldflags="-s -w" -o dist/$BIN_NAME
+          ls -lh dist/
+
+      # 4️⃣ 上传构建产物到 Actions（Artifacts）
+      # 构建完成后可在 "Actions → Artifacts" 下载对应平台二进制
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lain-cli-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/lain-cli-${{ matrix.goos }}-${{ matrix.goarch }}
+
+  # === 发布任务 ===
+  # 仅在打 Tag（如 v0.1.0）时触发，自动创建 Release
+  release:
+    name: Create GitHub Release
+    needs: build                # 依赖 build 任务执行完成
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')   # 仅在打 tag 时触发
+
+    steps:
+      # 1️⃣ 下载上一步构建的所有二进制产物
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./dist          # 所有产物下载到 dist 目录
+
+      # 2️⃣ 创建 Release 并上传产物
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./dist/**      # 上传 dist 下所有文件
+        env:
+          # GitHub Actions 自动注入的 token
+          # 无需手动设置，自动拥有发布权限
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
