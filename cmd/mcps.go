@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"lain-cli/logs"
 	"lain-cli/tools"
 	"os"
 	"os/signal"
@@ -93,6 +94,10 @@ var replCmd = &cobra.Command{
 		// list [mcp] 								-- 列出某个mcp的工具
 		// exec [mcp] [mcp tools] [vals]			-- 运行某个mcp 工具
 		// 交互开始
+		var ok bool
+		go func() {
+			_, ok = <-sigs
+		}()
 		for {
 			// line := ""
 			fmt.Print("Lain-> ")
@@ -101,15 +106,10 @@ var replCmd = &cobra.Command{
 			line, _ := reader.ReadString('\n')
 			line = strings.TrimSpace(line)
 			arg := strings.Split(line, " ")
-
-			fmt.Println(line)
-			var ok bool
-			go func() {
-				_, ok = <-sigs
-			}()
+			// fmt.Println(line)
 			if len(arg) == 1 && arg[0] == "exit" || ok {
-				fmt.Println("Exited")
-				panic("User Exit")
+				logs.Info("Exited")
+				return
 			} else if len(arg) == 1 && arg[0] == "ls" {
 				fmt.Println("MCP list:")
 				for i, v := range mcps {
@@ -124,8 +124,10 @@ var replCmd = &cobra.Command{
 					vals[temp[0]] = temp[1]
 				}
 				tools.CallTool(ctx, arg[1], arg[2], vals, tofile)
+			} else if len(arg) == 0 {
+				continue
 			} else {
-				fmt.Println("Not find command")
+				logs.Err("Not find command")
 			}
 
 		}

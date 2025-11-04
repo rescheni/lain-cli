@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"lain-cli/logs"
 	"net/http"
 	"strings"
 	"time"
@@ -205,7 +206,7 @@ func OpenTextView(method string, url string) (string, string, error) {
 
 	finalModel, err := p.Run()
 	if err != nil {
-		fmt.Println("启动 TUI 失败:", err)
+		logs.Err("启动 TUI 失败:", err)
 		return "", "", err
 	}
 	m, ok := finalModel.(model_input)

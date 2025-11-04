@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"lain-cli/exec"
+	"lain-cli/logs"
 
 	"github.com/spf13/cobra"
 )
@@ -20,12 +20,12 @@ lain curl post url  #  像目标服务器发送POST请求
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 2 {
-			fmt.Println("Place input [GET/POST...] URL")
+			logs.Err("Place input [GET/POST...] URL")
 			return
 		}
 		err := exec.Curl(args[0], args[1])
 		if err != nil {
-			fmt.Println("[err:]", err)
+			logs.Err("", err)
 			return
 		}
 

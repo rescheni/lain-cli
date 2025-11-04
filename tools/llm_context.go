@@ -3,6 +3,7 @@ package tools
 import (
 	"fmt"
 	"lain-cli/config"
+	"lain-cli/logs"
 	"lain-cli/utils"
 	"os"
 	"path/filepath"
@@ -23,7 +24,7 @@ func (c *llmctx) Init() {
 	CleanStaleContextFiles()
 	c.ppid = os.Getppid()
 	// 查找context
-	c.tempfile = os.TempDir() + fmt.Sprint(c.ppid) + "-" + config.Conf.Context.Local
+	c.tempfile = os.TempDir() + "/" + fmt.Sprint(c.ppid) + "-" + config.Conf.Context.Local
 	_, err := os.Stat(c.tempfile)
 	if err == nil {
 		// 文件不存在
@@ -43,14 +44,14 @@ func (c *llmctx) Add(ctx string) {
 
 	file, err := os.OpenFile(c.tempfile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0660)
 	if err != nil {
-		fmt.Println("open file err")
+		logs.Err("open file err", err)
 		return
 	}
 	defer file.Close()
 
 	_, err = file.Write([]byte("\n" + ctx))
 	if err != nil {
-		fmt.Println("Write file err")
+		logs.Err("Write file err", err)
 		return
 	}
 }
@@ -58,7 +59,7 @@ func (c *llmctx) Add(ctx string) {
 func (c *llmctx) read() {
 	bctx, err := os.ReadFile(c.tempfile)
 	if err != nil {
-		fmt.Println("Read file err")
+		logs.Err("Read file err", err)
 		return
 	}
 	c.context = string(bctx)
@@ -89,7 +90,7 @@ func CleanStaleContextFiles() {
 	pattern := filepath.Join(os.TempDir(), "*-"+config.Conf.Context.Local)
 	files, err := filepath.Glob(pattern)
 	if err != nil {
-		fmt.Println("glob err:", err)
+		logs.Err("glob err:", err)
 		return
 	}
 	for _, f := range files {

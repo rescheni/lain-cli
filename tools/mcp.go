@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"lain-cli/config"
+	"lain-cli/logs"
 	mui "lain-cli/ui"
 	"os"
 	"os/exec"
@@ -61,18 +62,14 @@ func initMCPs(configPath string) error {
 	ctx := context.Background()
 
 	for name, srv := range cfg.MCPServers {
-		fmt.Printf("初始化 MCP 客户端: %s (cmd=%s args=%v)\n", name, srv.Command, srv.Args)
-
+		logs.Info(fmt.Sprintf("初始化 MCP 客户端: %s (cmd=%s args=%v)\n", name, srv.Command, srv.Args))
 		cmd := exec.Command(srv.Command, srv.Args...)
 		cmd.Env = os.Environ()
 		for k, v := range srv.Env {
 			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
 		}
 
-		// 把子进程的 stderr 显示到当前终端，便于调试工具的日志输出（不会影响 MCP 的 stdout/stdin 协议）
-		// 许多工具会把 human-readable 日志写到 stderr，这样不会破坏协议。
 		cmd.Stderr = os.Stderr
-
 		client := mcp.NewClient(&mcp.Implementation{
 			Name:    "lain-cli",
 			Version: "v1.0.0",
@@ -80,25 +77,22 @@ func initMCPs(configPath string) error {
 
 		session, err := client.Connect(ctx, &mcp.CommandTransport{Command: cmd}, nil)
 		if err != nil {
-			fmt.Printf("❌ 初始化 %s 失败: %v\n", name, err)
+			logs.Err("❌ 初始化 "+name+" 失败: ", err)
 			continue
 		}
-
 		Mcps[name] = session
 		// time.Sleep(500 * time.Millisecond)
 	}
 
-	fmt.Println("✅ 所有 MCP 初始化完成")
+	logs.Info("✅ 所有 MCP 初始化完成")
 	return nil
 }
 
 // 列出所有 MCP 名称
 func ListMCPs() []string {
 	mcps := []string{}
-	// fmt.Println("当前连接的 MCP:")
 	for name := range Mcps {
 		mcps = append(mcps, name)
-		// fmt.Printf(" - %s\n", name)
 	}
 	return mcps
 }
@@ -107,18 +101,18 @@ func ListMCPs() []string {
 func ListMCPTools(ctx context.Context, name string) {
 	sess, ok := Mcps[name]
 	if !ok {
-		fmt.Printf("❌ 未找到 MCP: %s\n", name)
+		logs.Err("❌ 未找到 MCP:" + name)
 		return
 	}
 
 	resp, err := sess.ListTools(ctx, &mcp.ListToolsParams{})
 	if err != nil {
-		fmt.Printf("❌ ListTools 失败: %v\n", err)
+		logs.Err("❌ ListTools 失败:", err)
 		return
 	}
 
 	if len(resp.Tools) == 0 {
-		fmt.Println("(没有可用工具)")
+		logs.Err("(没有可用工具)")
 		return
 	}
 
@@ -132,10 +126,9 @@ func ListMCPTools(ctx context.Context, name string) {
 func CallTool(ctx context.Context, name, tool string, args map[string]any, tofile string) {
 	sess, ok := Mcps[name]
 	if !ok {
-		fmt.Printf("❌ 未找到 MCP: %s\n", name)
+		logs.Err("❌ 未找到 MCP:" + name)
 		return
 	}
-	// 调试：打印请求参数
 	if args == nil {
 		fmt.Println("Call payload: <nil>")
 	} else {
@@ -151,12 +144,12 @@ func CallTool(ctx context.Context, name, tool string, args map[string]any, tofil
 		Arguments: args,
 	})
 	if err != nil {
-		fmt.Printf("调用工具失败: %v\n", err)
+		logs.Err("调用工具失败:", err)
 		return
 	}
 
 	if res.IsError {
-		fmt.Println("⚠️ 工具执行失败")
+		logs.Err("⚠️ 工具执行失败")
 		return
 	}
 
@@ -169,7 +162,7 @@ func CallTool(ctx context.Context, name, tool string, args map[string]any, tofil
 	if tofile != "" {
 		file, err := os.OpenFile(tofile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0660)
 		if err != nil {
-			fmt.Println("Open File error")
+			logs.Err("Open File error")
 		}
 		defer file.Close()
 		file.Write([]byte(mds))
@@ -181,6 +174,6 @@ func CallTool(ctx context.Context, name, tool string, args map[string]any, tofil
 func CloseAllMCPs() {
 	for name, s := range Mcps {
 		_ = s.Close()
-		fmt.Printf("已关闭 MCP: %s\n", name)
+		logs.Info("已关闭 MCP:" + name)
 	}
 }

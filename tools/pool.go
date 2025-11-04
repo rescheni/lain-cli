@@ -11,6 +11,7 @@ type Pools struct {
 	wg    sync.WaitGroup
 }
 
+// 使用线程池进行端口测试
 func NewPools(n int) *Pools {
 	p := &Pools{
 		works: make(chan func(), 1000), // 任务队列

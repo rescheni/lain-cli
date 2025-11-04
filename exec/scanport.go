@@ -3,6 +3,7 @@ package exec
 import (
 	"fmt"
 
+	"lain-cli/logs"
 	"lain-cli/tools"
 	mui "lain-cli/ui"
 	"os"
@@ -25,7 +26,7 @@ var Rfun func()
 func RunNmap(ip string, begin, end int) {
 
 	if begin > end {
-		fmt.Println(begin, ">", end)
+		logs.Err(fmt.Sprintln(begin, ">", end))
 		return
 	}
 	pool := tools.NewDefaultPools()
@@ -140,7 +141,7 @@ func Run() {
 	}
 
 	if _, err := tea.NewProgram(m).Run(); err != nil {
-		fmt.Println("Oh no!", err)
+		logs.Err("Oh no!", err)
 		os.Exit(1)
 	}
 	fmt.Println()

@@ -68,12 +68,6 @@ func runSpeedTest(downChan, upChan chan net_time) {
 		wg.Wait()
 
 		callback = func() {
-			// fmt.Printf(
-			// 	"Latency: %s, Download: %.2f Mbps, Upload: %.2f Mbps\n",
-			// 	s.Latency,
-			// 	s.DLSpeed.Mbps(),
-			// 	s.ULSpeed.Mbps(),
-			// )
 			mui.TuiPrintTable([]string{"Latency", "Download", "Upload"}, [][]string{
 				{fmt.Sprint(s.Latency), fmt.Sprintf("%.2fMbps", s.DLSpeed.Mbps()), fmt.Sprintf("%.2fMbps", s.ULSpeed.Mbps())},
 			})

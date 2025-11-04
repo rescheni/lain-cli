@@ -15,6 +15,7 @@ var infoCmd = &cobra.Command{
 	Short: "show device info",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		tools.InfoInit()
 		tools.BasePrint()
 	},
 }

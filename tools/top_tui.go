@@ -3,6 +3,7 @@ package tools
 import (
 	"context"
 	"fmt"
+	"lain-cli/logs"
 	"os"
 	"sort"
 	"strconv"
@@ -101,7 +102,7 @@ func OpenPerformance() {
 			pid, _ := strconv.Atoi(pidText)
 			proc, err := os.FindProcess(pid)
 			if err != nil {
-				fmt.Println("no find Process")
+				logs.Err("no find Process")
 				return e
 			}
 			err = syscall.Kill(pid, syscall.SIGKILL)
@@ -195,7 +196,7 @@ func getProcessinfo() <-chan procInfos {
 		for {
 			procs, err := process.Processes()
 			if err != nil {
-				fmt.Println("Get Proc err")
+				logs.Err("Get Proc err")
 				return
 			}
 			procinfov := make(SortByprocinfo, 0)
@@ -206,7 +207,6 @@ func getProcessinfo() <-chan procInfos {
 				if U != osusername && osusername != "root" {
 					continue
 				}
-
 				// 1 PID
 				pid := tview.NewTableCell(fmt.Sprint(v.Pid))
 				chv = append(chv, pid)

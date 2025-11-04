@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"lain-cli/config"
+	"lain-cli/logs"
 	"net"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -26,21 +28,36 @@ var (
 var wg sync.WaitGroup
 
 // TUI Color
-func init() {
+func InfoInit() {
 	lipgloss.SetColorProfile(termenv.TrueColor)
 }
+
+const (
+	i_info = iota
+	i_Host
+	i_OS
+	i_Kernel
+	i_Uptime
+	i_Packages
+	i_Shell
+	i_Disk
+	i_CPU
+	i_GPU
+	i_RAM
+	i_IP
+)
 
 func BasePrint() {
 	txt, err := os.OpenFile(config.Conf.Logo.Logo_txt, os.O_RDONLY, 0660)
 	if err != nil {
-		fmt.Println("open logo txt err")
+		logs.Err("open logo txt err", err)
 		return
 	}
 	defer txt.Close()
 
 	keys := []string{
 		"",
-		"host",
+		"Host",
 		"OS",
 		"Kernel",
 		"Uptime",
@@ -84,20 +101,16 @@ func BasePrint() {
 		}()
 	}
 	wg.Wait()
-
-	fmt.Println()
 	txtScanner := bufio.NewScanner(txt)
 	maxline := ""
 	for i := range keys {
-
 		if !txtScanner.Scan() {
 			if err := txtScanner.Err(); err != nil {
-				fmt.Println("Read logo err", err)
+				logs.Err("Read logo err", err)
 				return
 			}
 			break
 		}
-
 		line := txtScanner.Text()
 		if i == 0 {
 			maxline = fmt.Sprint(len(string(line)))
@@ -105,98 +118,80 @@ func BasePrint() {
 			fmt.Println()
 			continue
 		}
-
-		// fmt.Printf("%"+maxline+"s"+"\t%s:%s", string(line), keys[i], vals[i])
 		fmt.Printf("%"+maxline+"s"+"\t%s: %s", logoStyle.Render(string(line)), keyStyle.Render(keys[i]), valStyle.Render(vals[i]))
 		fmt.Println()
-
 	}
-
 	for txtScanner.Scan() {
 		line := txtScanner.Text()
 		fmt.Printf("%"+maxline+"s", logoStyle.Render(string(line)))
 		fmt.Println()
 	}
 	if err := txtScanner.Err(); err != nil {
-		fmt.Println("Read logo err:", err)
+		logs.Err("Read logo:", err)
 	}
 
 }
 
 func getCpuinfo(ss []string) {
 	cinfo := ""
-	num := 8
 	info, err := cpu.Info()
 	if err != nil {
-		fmt.Println("Get cpu info err", err)
+		logs.Err("Get cpu info", err)
 		return
 	}
 	if len(info) == 0 {
-		ss[num] = "nil"
+		ss[i_CPU] = "nil"
 	}
 	cinfo += fmt.Sprintf("%s Cores %d", info[0].ModelName+" "+fmt.Sprintf("%.1f MHZ", info[0].Mhz), info[0].Cores)
-	ss[num] = cinfo
+	ss[i_CPU] = cinfo
 
 }
 
 func getMeminfo(ss []string) {
 
-	num := 10
 	memInfo, err := mem.VirtualMemory()
 	if err != nil {
-		fmt.Println("Get mem info err", err)
-		ss[num] = "nil"
+		logs.Err("Get mem info err", err)
+		ss[i_RAM] = "nil"
 		return
 	}
 
 	all := memInfo.Total / 1024 / 1024
 	used := memInfo.Used / 1024 / 1024
 
-	ss[num] = fmt.Sprintf("[%.2f%%] %d MB/%d MB", memInfo.UsedPercent, used, all)
+	ss[i_RAM] = fmt.Sprintf("[%.2f%%] %d MB/%d MB", memInfo.UsedPercent, used, all)
 
 }
 
 func getHostinfo(ss []string) {
-	num_host := 1
-	num_os := 2
-	num_kernel := 3
-	num_uptime := 4
 	ht, err := host.Info()
 	if err != nil {
-		fmt.Println("Get sys Info err")
+		logs.Err("Get sys Info")
 		return
 	}
 	kerversion, _ := host.KernelVersion()
-	ss[num_host] = os.Getenv("USER") + "@" + ht.Hostname
-	ss[num_os] = ht.OS + " " + ht.PlatformVersion + " " + ht.PlatformFamily
-	ss[num_kernel] = fmt.Sprintf("%s %s", ht.KernelArch, kerversion)
+	ss[i_Host] = os.Getenv("USER") + "@" + ht.Hostname
+	ss[i_OS] = ht.OS + " " + ht.PlatformVersion + " " + ht.PlatformFamily
+	ss[i_Kernel] = fmt.Sprintf("%s %s", ht.KernelArch, kerversion)
 	uptime := ht.Uptime
 	days := uptime / 86400
 	hours := (uptime % 86400) / 3600
 	mins := (uptime % 3600) / 60
-	ss[num_uptime] = fmt.Sprintf("%d days %d hours %d mins", days, hours, mins)
-
+	ss[i_Uptime] = fmt.Sprintf("%d days %d hours %d mins", days, hours, mins)
 }
-
 func getDiskinfo(ss []string) {
-
-	num_disk := 7
 	path := "/"
 	diskUsed, _ := disk.Usage(path)
 	g := uint64(1024 * 1024 * 1024)
 	all := diskUsed.Total / g
 	used := diskUsed.Used / g
-	ss[num_disk] = fmt.Sprintf("[%.2f%%] %d GB / %d GB (%s)", diskUsed.UsedPercent, used, all, path)
-
+	ss[i_Disk] = fmt.Sprintf("[%.2f%%] %d GB / %d GB (%s)", diskUsed.UsedPercent, used, all, path)
 }
-
 func getIPinfo(ss []string) {
-	num_ip := 11
 
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		ss[num_ip] = "unknown"
-
+		ss[i_IP] = "unknown"
 		return
 	}
 
@@ -207,9 +202,9 @@ func getIPinfo(ss []string) {
 			continue
 		}
 		name := iface.Name
-		// 只关注 en0, en1, eth0 以及常见 wifi 前缀（wlan/wlp/wl）或包含 wifi 的名
+		// 只关注  en, eth 以及常见 wifi 前缀（wlan/wlp/wl）或包含 wifi 的名
 		lname := strings.ToLower(name)
-		ok := name == "en0" || name == "en1" || name == "eth0" ||
+		ok := strings.HasPrefix(lname, "en") || strings.HasPrefix(lname, "eth") ||
 			strings.HasPrefix(lname, "wl") || strings.HasPrefix(lname, "wlan") || strings.Contains(lname, "wifi")
 		if !ok {
 			continue
@@ -233,31 +228,55 @@ func getIPinfo(ss []string) {
 			parts = append(parts, fmt.Sprintf("%s:%s", name, ip.String()))
 		}
 	}
-
 	if len(parts) == 0 {
-		ss[num_ip] = "unknown"
+		ss[i_IP] = "unknown"
 	} else {
-		ss[num_ip] = strings.Join(parts, " ")
+		ss[i_IP] = strings.Join(parts, " ")
 	}
-
 }
 func getShellinfo(ss []string) {
-
-	ss[6] = os.Getenv("SHELL")
-
+	ss[i_Shell] = os.Getenv("SHELL")
 }
 func getPackageinfo(ss []string) {
-	cmd := exec.Command("sh", "-c", "brew list 2>/dev/null | wc -l")
-	out, _ := cmd.Output()
-	packages := strings.TrimSpace(string(out))
-	ss[5] = packages
+	packages := "0"
+	if runtime.GOOS == "darwin" {
+		cmd := exec.Command("sh", "-c", "brew list 2>/dev/null | wc -l")
+		out, _ := cmd.Output()
+		packages = strings.TrimSpace(string(out))
+	} else if runtime.GOOS == "linux" {
+		cmd_dpkg := exec.Command("sh", "-c", "dpkg -l | grep -c '^ii'")
+		cmd_out, _ := cmd_dpkg.Output()
+		// cmd_snap := exec.Command("sh", "-c", "snap list | wc -l")
+		// snap_out, _ := cmd_snap.Output()
+		packages = "dpkg:" + strings.TrimSpace(string(cmd_out)) // + " snap:" + strings.TrimSpace(string(snap_out))
+	} else {
 
+	}
+	ss[i_Packages] = packages
 }
-
 func getGpuinfo(ss []string) {
-	cmd := exec.Command("sh", "-c", "system_profiler SPDisplaysDataType | grep 'Chipset Model' | head -1 | cut -d: -f2 | xargs")
-	out, _ := cmd.Output()
-	gpu := strings.TrimSpace(string(out))
-	ss[9] = gpu
 
+	gpu := "unknown"
+	if runtime.GOOS == "darwin" {
+		cmd := exec.Command("sh", "-c", "system_profiler SPDisplaysDataType | grep 'Chipset Model' | head -1 | cut -d: -f2 | xargs")
+		out, _ := cmd.Output()
+		gpu = strings.TrimSpace(string(out))
+	} else if runtime.GOOS == "linux" {
+		cmd := exec.Command("sh", "-c", "nvidia-smi --query-gpu=name --format=csv,noheader,nounits | head -1 | xargs")
+		out, err := cmd.Output()
+		if err != nil {
+			cmd := exec.Command("sh", "-c", "lspci | grep -i vga | head -1 | cut -d: -f3- | xargs")
+			out, err := cmd.Output()
+			if err != nil {
+				gpu = "unknown"
+			} else {
+				gpu = strings.TrimSpace(string(out))
+			}
+		} else {
+			gpu = strings.TrimSpace(string(out))
+		}
+	} else {
+
+	}
+	ss[i_GPU] = gpu
 }

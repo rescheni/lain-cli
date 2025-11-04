@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"lain-cli/config"
+	"lain-cli/logs"
 	"lain-cli/server"
 	"lain-cli/tools"
 
@@ -27,13 +28,17 @@ var agCmd = &cobra.Command{
 	Short: "input Your things to lain",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		// fmt.Println(os.Getppid(), len(args))
 
-		if len(args) == 0 || len(args) > 1 && args[0] == "" {
-			fmt.Println("Please enter a request")
-			return
+		logs.Debug(os.TempDir())
+		err := server.LLMInit()
+		if err != nil {
+			logs.Err("server LLM init Error")
 		}
 
+		if len(args) == 0 || len(args) > 1 && args[0] == "" {
+			logs.Info("Please enter a request")
+			return
+		}
 		ctx := context.Background()
 		ask := ""
 		if len(args) > 0 {
@@ -52,22 +57,21 @@ var agCmd = &cobra.Command{
 				ask += scanner.Text()
 			}
 		}
-
 		if config.Conf.Context.Enabled {
 			tools.LLMCTX.Add(ask + "\n")
 			ask = tools.LLMCTX.Getcontext() + ask
 
 		}
-		// fmt.Println(ask)
+
+		// Use markdown out
 		if flagMarkdown {
 			server.CallModel(ctx, ask, flagWindow)
 		} else {
 			err := server.CallModelStream(ctx, ask)
 			if err != nil {
-				fmt.Printf("server call model error")
+				logs.Err("server call model error", err)
 			}
 		}
-
 		fmt.Println()
 	},
 }

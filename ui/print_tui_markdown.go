@@ -1,8 +1,7 @@
 package mui
 
 import (
-	"fmt"
-
+	"lain-cli/logs"
 	"log"
 	"os"
 
@@ -41,7 +40,7 @@ func PrintMarkdown(completion string, uw bool) {
 	// 3. 运行！
 	// .Run() 会接管终端，直到用户按 Ctrl+C
 	if _, err := p.Run(); err != nil {
-		fmt.Println("启动 TUI 失败:", err)
+		logs.Err("启动 TUI 失败:", err)
 		os.Exit(1)
 	}
 }

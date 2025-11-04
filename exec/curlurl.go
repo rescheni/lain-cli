@@ -3,6 +3,7 @@ package exec
 import (
 	"fmt"
 	"io"
+	"lain-cli/logs"
 	mui "lain-cli/ui"
 	"net/http"
 	"strings"
@@ -17,19 +18,20 @@ func Curl(method string, url string) error {
 		var req string
 		req, respBody, err = mui.OpenTextView(method, url)
 		if err != nil {
-			fmt.Println(err)
+			logs.Err("", err)
 		}
+		logs.Info("Your Ask:")
 		fmt.Println(req)
 		fmt.Println(respBody)
 	} else {
 		req, err := http.NewRequest(method, url, nil)
 		if err != nil {
-			fmt.Println(err)
+			logs.Err("", err)
 		}
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
-			fmt.Println("http client err", err)
+			logs.Err("http client:", err)
 		}
 		defer resp.Body.Close()
 		bodyBytes, _ := io.ReadAll(resp.Body)

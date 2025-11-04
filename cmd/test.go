@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"lain-cli/exec"
+	"lain-cli/logs"
 	"lain-cli/tools"
 	"strconv"
 
@@ -45,11 +46,11 @@ var testPortCmd = &cobra.Command{
 			tools.SetScannerOpen()
 		}
 
-		fmt.Printf("目标地址: %s\n", ip)
+		logs.Info("目标地址:" + ip)
 
 		// ----- 模式一：端口范围 -----
 		if start > 0 && end > 0 {
-			fmt.Printf("扫描端口范围: %d - %d\n", start, end)
+			logs.Info(fmt.Sprintf("扫描端口范围: %d - %d\n", start, end))
 			exec.Rfun = func() {
 				exec.RunNmap(ip, start, end)
 			}
@@ -65,7 +66,7 @@ var testPortCmd = &cobra.Command{
 		}
 		// ----- 模式二：指定端口 -----
 		if len(ports) > 0 {
-			fmt.Printf("测试指定端口: %v\n", ports)
+			logs.Err(fmt.Sprintf("测试指定端口: %v\n", ports))
 			exec.Rfun = func() {
 				exec.RunNmapPorts(ip, ports...)
 			}
@@ -74,7 +75,7 @@ var testPortCmd = &cobra.Command{
 		}
 
 		// ----- 模式三：默认常用端口 -----
-		fmt.Println("未指定端口，将测试默认常用端口")
+		logs.Info("未指定端口，将测试默认常用端口")
 		exec.Rfun = func() {
 			exec.RunDefaultNmap(ip)
 		}
@@ -93,10 +94,10 @@ var testSpeedCmd = &cobra.Command{
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if uiFlag {
-			fmt.Println("开始 UI 模式网速测试...")
+			logs.Info("开始 UI 模式网速测试...")
 			exec.RunSpeedTestUI()
 		} else {
-			fmt.Println("开始命令行网速测试...")
+			logs.Info("开始命令行网速测试...")
 			exec.RunSpeedTestNUI()
 		}
 

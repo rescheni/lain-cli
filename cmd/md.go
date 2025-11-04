@@ -4,7 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"lain-cli/logs"
 	mui "lain-cli/ui"
 	"os"
 
@@ -19,17 +19,17 @@ lain md filename.md
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			fmt.Println("file not find")
+			logs.Err("file not find")
 			return
 		}
 		filename := args[0]
 		if filename == "" {
-			fmt.Println("file not find")
+			logs.Err("file not find")
 			return
 		}
 		file, err := os.ReadFile(filename)
 		if err != nil {
-			fmt.Println("open file err")
+			logs.Err("open file err")
 			return
 		}
 		// fmt.Println()

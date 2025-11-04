@@ -6,6 +6,7 @@ import (
 
 var Proc = make(map[string][]byte)
 
+// 探针
 func InitProc(ip string) {
 	Proc["TCP"] = []byte("GET / HTTP/1.1\r\nHost: " + ip + "\r\nConnection: close\r\n\r\n")
 	Proc["RDP"] = []byte{
@@ -21,6 +22,7 @@ func InitProc(ip string) {
 	Proc["REDIS"] = []byte("PING\r\n")
 }
 
+// 端口测试协议判断
 func GetInfo(reqProc string, resp []byte) string {
 	if len(resp) == 0 {
 		return ""
