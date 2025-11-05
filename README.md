@@ -34,8 +34,12 @@ Lain-CLI 是一个以终端交互为核心的工具集，整合多种系统能�
 | **系统信息展示** | 类似 Neofetch 的静态信息输出 | ✅ |
 | **Markdown 工具** | 输出转换与格式美化 | ✅ |
 | **MCP 协议支持** | 初步兼容、支持配置调用 | ✅ |
+|  | Linux端 MCP适配测试成功 | ✅ |
+|  | mcp文件ui编辑 | **TODO** |
+|  | 更好的mcp调用方式 | **TODO** |
 | **Linux 完全支持** | 适配与优化中 | ✅ |
-|  | MCP适配测试失败 | todo |
+| **密钥安全** |  | **TODO** |
+
 
 
 ---
@@ -47,55 +51,106 @@ Lain-CLI 是一个以终端交互为核心的工具集，整合多种系统能�
 echo "show network info" | lain-cli ag "帮我总结一下"
 
 # 网络测试
-lain-cli net test --host example.com
+- 网速测试
+ - lain-cli test speed #-n 不用tui测
+- 端口测试
+ - lain-cli test port ip/domain  # -o 返回不会立刻refuse的端口
+ - lain-cli test port ip/domain -p [ports]
+ - lain-cli test port ip -s startport -e endport      # 扫描端口范围 
 
-# 系统监控
-lain-cli monitor
+# 基本系统监控
+lain-cli top
 
-# 系统信息展示
+# 系统信息展示  [ui 使用Lain 中 NAVI电脑的图标]
 lain-cli info
+
+# 在终端渲染 md 文件
+lain-cli md    # -w 在新窗口展示
+
+# 终端调用简单mcp
+ lain-cli mcps  # -f [filename] 调用mcp 返回输出到文件
+ lain-cli mcps repl # 交互方式的使用mcp 
+
+# 查看版本信息
+lain-cli version 
+
 ```
+
+### config.yaml 配置
+
+```json
+# AI 接口信息 [支持openwebui]
+ai:
+  api_url: ""
+  api_key: ""
+  ai_model_name: ""
+# 是否使用一言 ON 
+yiyan: 
+  status: "ON"
+  api_url: "https://v1.hitokoto.cn"
+
+# 是否使用模型上下文 [基于shell 进程]
+context:
+  enabled: true
+  local: "context.md" # /tmp/context.txt
+
+# mcp 文件位置
+mcp:
+  json: "./mcp.json"
+
+# info 信息的logo位置
+logo:
+  logo_txt: "./ascii-logo.txt"
+
+```
+
+### json配置示例
+```json
+{
+  "mcpServers": {
+    "rss-reader-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "rss-reader-mcp"
+      ]
+    },
+    "fetch": {
+      "args": [
+        "mcp-server-fetch"
+      ],
+      "command": "uvx"
+    }
+  }
+}
+
+```
+
 ### 安装
 
-未来将支持一键安装脚本：
+TODO将支持一键安装脚本：
 ```bash
-
-curl -fsSL https://lain.sh/install.sh | sh
-
+curl -fsSL https://raw.githubusercontent.com/rescheni/lain-cli/refs/heads/main/scripts/install.sh | sh
 ```
-当前可通过源码编译方式使用：
+可以通过源码编译方式使用：
 ``` bash
-git clone https://github.com/yourname/lain-cli.git
+git clone https://github.com/rescheni/lain-cli.git
 cd lain-cli
 go build -o lain-cli
 ```
-功能预览
-系统监控界面
 
-Neofetch 风格信息展示
 
-项目结构
-```bash
-github.com/rescheni/lain-cli/
-├── cmd/            # 各子命令定义（Cobra）
-├── tools/          # 工具模块封装
-├── tui/            # TUI 视图组件
-├── config/         # 全局配置
-├── main.go
-└── README.md
-```
+### 其他
+> 实际上这个项目有很多优化空间，目前本人水平有限.
+> 如有建议可以联系我： reschen@126.com
+
 ### 未来计划
-- 完整 Linux 适配与系统调用抽象
-- 更新与一键安装脚本
-- 丰富 TUI 交互（进程管理 / 网络连接追踪）
-- MCP 插件使用
-- 云端同步与远程配置
 
 开源协议
 本项目采用 MIT License 开源协议
 
 致开发者
-这是一个从实验起步的项目，
+这是一个从实验学习起步的项目，
 我希望它能成为 “命令行世界里最有温度的工具”。
 如果你有兴趣参与、测试或改进，欢迎提交 Issue 或 PR。
 

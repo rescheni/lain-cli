@@ -3,7 +3,7 @@ ai:
   api_url: ""
   api_key: ""
   ai_model_name: "gemma3:4b"
-# 是否使用一言
+# 是否使用一言 ON 
 yiyan: 
   status: "ON"
   api_url: "https://v1.hitokoto.cn"

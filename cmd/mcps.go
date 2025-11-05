@@ -43,7 +43,10 @@ var mcpsCmd = &cobra.Command{
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		// fmt.Println("=====================", args)
-		tools.Init()
+		err := tools.Init()
+		if err != nil {
+			return
+		}
 		ctx := context.Background()
 		_mcps := tools.ListMCPs()
 		for i, name := range _mcps {

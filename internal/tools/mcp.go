@@ -27,8 +27,13 @@ type MCPServer struct {
 	Env     map[string]string `json:"env"`
 }
 
-func Init() {
-	initMCPs(config.Conf.Mcp.Json)
+func Init() error {
+	err := initMCPs(config.Conf.Mcp.Json)
+	if err != nil {
+		logs.Err("open mcp.json", err)
+		logs.Err("MCP Location " + config.Conf.Mcp.Json + " open error")
+	}
+	return err
 }
 
 // 保存所有 MCP 连接

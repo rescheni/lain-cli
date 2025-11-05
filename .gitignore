@@ -24,7 +24,9 @@ profile.cov
 go.work
 go.work.sum
 # Lain CLI build output
-./lain-cli
+lain-cli
+
+mcp.json
 
 # env file
 .env
