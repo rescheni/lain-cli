@@ -1,14 +1,22 @@
+# AI 接口信息
 ai:
   api_url: ""
   api_key: ""
   ai_model_name: "gemma3:4b"
-yiyan:
+# 是否使用一言
+yiyan: 
   status: "ON"
   api_url: "https://v1.hitokoto.cn"
+
+# 是否使用模型上下文 【基于shell 进程】
 context:
   enabled: true
   local: "context.md" # /tmp/context.txt
+
+# mcp 文件位置
 mcp:
   json: "./mcp.json"
+
+# info 信息的logo位置
 logo:
   logo_txt: "./ascii-logo.txt"
