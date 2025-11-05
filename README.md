@@ -78,7 +78,7 @@ lain-cli version
 
 ### config.yaml 配置
 
-```json
+```yaml
 # AI 接口信息 [支持openwebui]
 ai:
   api_url: ""
