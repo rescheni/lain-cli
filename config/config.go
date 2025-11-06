@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
@@ -42,7 +43,6 @@ var Conf Config
 func init() {
 	data, err := os.ReadFile("./config.yaml")
 	if err != nil {
-
 		return
 	}
 
@@ -50,5 +50,18 @@ func init() {
 	if err != nil {
 		return
 	}
-	// fmt.Println(Conf)
+	Check_ENV(&Conf.Ai.Api_key)
+	Check_ENV(&Conf.Ai.Api_model_name)
+	Check_ENV(&Conf.Ai.Api_url)
+	Check_ENV(&Conf.Context.Local)
+
+	Check_ENV(&Conf.Mcp.Json)
+	Check_ENV(&Conf.Yiyan.Api_url)
+
+}
+
+func Check_ENV(conf *string) {
+	if strings.HasPrefix(*conf, "ENV_") {
+		*conf = os.Getenv(*conf)
+	}
 }

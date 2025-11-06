@@ -30,7 +30,7 @@ var agCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		logs.Debug(os.TempDir())
+		// logs.Debug(os.TempDir())
 		err := server.LLMInit()
 		if err != nil {
 			logs.Err("server LLM init Error")

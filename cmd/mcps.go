@@ -63,7 +63,7 @@ var mcpsCmd = &cobra.Command{
 
 			for i := 2; i < len(args); i++ {
 
-				vals := strings.Split(args[i], "====")
+				vals := strings.Split(args[i], "===")
 				val[vals[0]] = vals[1]
 			}
 
@@ -85,7 +85,7 @@ var replCmd = &cobra.Command{
 	Long:  `交互调用mcp`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// 捕获 Ctrl+C [TODO] 一点小问题
+		// 捕获 Ctrl+C [TODO] 关闭PY依然大量输出报错
 		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGINT)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGQUIT)

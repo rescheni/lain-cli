@@ -72,6 +72,7 @@ func initMCPs(configPath string) error {
 		cmd := exec.Command(srv.Command, srv.Args...)
 		cmd.Env = os.Environ()
 		for k, v := range srv.Env {
+			config.Check_ENV(&v)
 			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
 		}
 

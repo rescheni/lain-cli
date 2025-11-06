@@ -1,7 +1,8 @@
 # AI 接口信息
+# 可以设置环境变量 必须是 "ENV_" 开头
 ai:
   api_url: ""
-  api_key: ""
+  api_key: "ENV_API_KEY"
   ai_model_name: "gemma3:4b"
 # 是否使用一言 ON 
 yiyan: 
