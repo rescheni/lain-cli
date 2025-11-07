@@ -142,11 +142,11 @@ func (m model_input) View() string {
 
 	var b strings.Builder
 
-	b.WriteString(titleStyle.Render(fmt.Sprintf("%s to %s", m.method, m.url)))
+	b.WriteString(titleStyle.Render(fmt.Sprintf("%s | %s", m.method, m.url)))
 	b.WriteString("\n\n")
 	b.WriteString(m.textarea.View())
 	b.WriteString("\n\n")
-	b.WriteString("编辑 JSON (按 Esc/Ctrl+C 退出, 按 Ctrl+S 发送, 按 Tab 插入空格)")
+	b.WriteString("编辑 JSON (按 Esc/Ctrl+C 退出, 按 Ctrl+S 发送/保存, 按 Tab 插入空格)")
 
 	if m.err != nil {
 		b.WriteString("\n" + errorStyle.Render(m.err.Error()))

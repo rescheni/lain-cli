@@ -6,12 +6,15 @@ package cmd
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"os/signal"
 	"strings"
 	"syscall"
 
+	"github.com/rescheni/lain-cli/config"
 	"github.com/rescheni/lain-cli/internal/tools"
 	logs "github.com/rescheni/lain-cli/logs"
 
@@ -138,8 +141,52 @@ var replCmd = &cobra.Command{
 	},
 }
 
+var editCmd = &cobra.Command{
+	Use:   "edit",
+	Short: "edit mcp.json",
+	Long:  `编辑mcp.json文件`,
+	Run: func(cmd *cobra.Command, args []string) {
+		var err error
+		var editorCmd *exec.Cmd
+		if len(args) == 0 {
+			_, err = exec.LookPath("vim")
+			if err != nil {
+				_, err = exec.LookPath("nano")
+				if err == nil {
+					editorCmd = exec.Command("nano", config.Conf.Mcp.Json)
+				} else {
+					err = errors.New("no vim/nano")
+				}
+			} else {
+				editorCmd = exec.Command("vim", config.Conf.Mcp.Json)
+
+			}
+		} else {
+			_, err = exec.LookPath(args[0])
+			if err != nil {
+				err = errors.New("no " + args[0])
+			} else {
+				editorCmd = exec.Command(args[0], config.Conf.Mcp.Json)
+			}
+		}
+		if err != nil {
+			logs.Err("edit file err : ", err)
+		} else {
+			logs.Info("open " + config.Conf.Mcp.Json + " OK")
+			editorCmd.Stdin = os.Stdin
+			editorCmd.Stdout = os.Stdout
+			editorCmd.Stderr = os.Stderr
+			if err = editorCmd.Run(); err != nil {
+				logs.Err("err", err)
+				return
+			}
+		}
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(mcpsCmd)
 	mcpsCmd.AddCommand(replCmd)
+	mcpsCmd.AddCommand(editCmd)
 	mcpsCmd.Flags().StringVarP(&tofile, "tofile", "f", "", "Mcp print to file	# 将mcp的输出同时到文件")
 }
