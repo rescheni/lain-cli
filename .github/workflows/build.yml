@@ -50,7 +50,7 @@ jobs:
           cp config.yaml.example dist/config.yaml
           
           # 打包所有文件
-          tar -czf dist/$PACKAGE_NAME -C dist $BIN_NAME config.yaml ascii-logo.txt
+          tar -czf dist/$PACKAGE_NAME -C dist $BIN_NAME config.yaml
           ls -lh dist/
 
       # 上传构建产物
