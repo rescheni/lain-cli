@@ -1,23 +1,24 @@
 # AI 接口信息
 # 可以设置环境变量 必须是 "ENV_" 开头
 ai:
-  api_url: ""
+  api_url: "http://your.api.url"
   api_key: "ENV_API_KEY"
-  ai_model_name: "gemma3:4b"
-# 是否使用一言 ON 
-yiyan: 
+  ai_model_name: "model_name:bit"
+# 是否使用一言 ON
+yiyan:
   status: "ON"
   api_url: "https://v1.hitokoto.cn"
 
 # 是否使用模型上下文 【基于shell 进程】
 context:
   enabled: true
-  local: "context.md" # /tmp/context.txt
+  # /tmp/context.txt
+  local: "context.md"
 
 # mcp 文件位置
 mcp:
-  json: "./mcp.json"
+  json: "/your/path/mcp.json"
 
 # info 信息的logo位置
 logo:
-  logo_txt: "./ascii-logo.txt"
+  logo_txt: "/your/path/ascii-logo.txt"
