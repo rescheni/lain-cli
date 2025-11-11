@@ -115,12 +115,10 @@ download_prebuilt() {
 
 # 安装文件
 install_files() {
-    INSTALL_DIR="${HOME}/.local/bin"
-    CONFIG_DIR="${HOME}/.config/lain-cli"
+    INSTALL_DIR="${HOME}/lain-cli"
     
     # 创建安装目录
     mkdir -p "$INSTALL_DIR"
-    mkdir -p "$CONFIG_DIR"
     
     # 复制二进制文件
     if [ -f "${TEMP_DIR}/lain-cli" ]; then
@@ -132,16 +130,20 @@ install_files() {
         exit 1
     fi
     
-    # 复制配置文件示例（如果不存在）
-    if [ ! -f "${CONFIG_DIR}/config.yaml" ]; then
-        if [ -f "${TEMP_DIR}/config.yaml" ]; then
-            cp "${TEMP_DIR}/config.yaml" "${CONFIG_DIR}/config.yaml"
-            print_info "已创建配置文件: ${CONFIG_DIR}/config.yaml"
-        else
-            print_warn "未找到配置文件"
-        fi
+    # 复制配置文件
+    if [ -f "${TEMP_DIR}/config.yaml" ]; then
+        cp "${TEMP_DIR}/config.yaml" "$INSTALL_DIR/"
+        print_info "已安装配置文件到 $INSTALL_DIR/config.yaml"
     else
-        print_info "配置文件已存在: ${CONFIG_DIR}/config.yaml"
+        print_warn "未找到配置文件"
+    fi
+    
+    # 复制logo文件
+    if [ -f "${TEMP_DIR}/ascii-logo.txt" ]; then
+        cp "${TEMP_DIR}/ascii-logo.txt" "$INSTALL_DIR/"
+        print_info "已安装logo文件到 $INSTALL_DIR/ascii-logo.txt"
+    else
+        print_warn "未找到logo文件"
     fi
 }
 
@@ -149,13 +151,15 @@ install_files() {
 post_install_info() {
     print_info "安装完成！"
     echo ""
-    print_info "请确保将 $INSTALL_DIR 添加到 PATH 环境变量中:"
-    echo "  export PATH=\$PATH:$INSTALL_DIR"
+    print_info "文件已安装到: ${HOME}/lain-cli"
     echo ""
-    print_info "配置文件位置: ${CONFIG_DIR}/config.yaml"
-    print_info "你可以根据需要修改配置文件"
+    print_info "目录内容:"
+    ls -la "${HOME}/lain-cli"
     echo ""
-    print_info "运行 'lain-cli --help' 查看可用命令"
+    print_info "请将 ${HOME}/lain-cli 添加到 PATH 环境变量中:"
+    echo "  export PATH=\$PATH:${HOME}/lain-cli"
+    echo ""
+    print_info "运行 '${HOME}/lain-cli/lain-cli --help' 查看可用命令"
 }
 
 # 主函数
