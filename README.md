@@ -139,7 +139,7 @@ logo:
 
 ### 安装
 
-TODO将支持一键安装脚本：
+一键安装脚本：
 ```bash
 curl -fsSL https://raw.githubusercontent.com/rescheni/lain-cli/refs/heads/main/scripts/install.sh | sh
 ```
