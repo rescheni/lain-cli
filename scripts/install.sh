@@ -69,15 +69,32 @@ create_temp_dir() {
     print_info "创建临时目录: $TEMP_DIR"
 }
 
-# 下载最新版本
-download_latest() {
+# 获取最新版本
+get_latest_version() {
     print_info "正在获取最新版本信息..."
     
-    # 这里应该从 GitHub releases 下载最新版本
-    # 目前使用固定版本进行演示
-    VERSION="v0.1.0"
+    # 使用 GitHub API 获取最新版本
+    if command -v curl >/dev/null 2>&1; then
+        VERSION=$(curl -s https://api.github.com/repos/rescheni/lain-cli/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    elif command -v wget >/dev/null 2>&1; then
+        VERSION=$(wget -q -O - https://api.github.com/repos/rescheni/lain-cli/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    else
+        print_warn "未找到 curl 或 wget，使用默认版本"
+        VERSION="v1.0.0"
+    fi
+    
+    if [ -z "$VERSION" ]; then
+        print_warn "无法获取最新版本，使用默认版本"
+        VERSION="v1.0.0"
+    fi
+    
+    print_info "使用版本: $VERSION"
+}
+
+# 下载预编译版本
+download_prebuilt() {
     BINARY_NAME="lain-cli"
-    DOWNLOAD_URL="https://github.com/rescheni/lain-cli/releases/download/${VERSION}/lain-cli_${VERSION}_${OS}_${ARCH}.tar.gz"
+    DOWNLOAD_URL="https://github.com/rescheni/lain-cli/releases/download/${VERSION}/lain-cli-${VERSION}-${OS}-${ARCH}.tar.gz"
     
     print_info "下载地址: $DOWNLOAD_URL"
     
@@ -88,26 +105,12 @@ download_latest() {
         wget -O "${TEMP_DIR}/lain-cli.tar.gz" "$DOWNLOAD_URL"
     else
         print_error "需要 curl 或 wget 来下载文件"
-        exit 1
+        return 1
     fi
     
     # 解压文件
     tar -xzf "${TEMP_DIR}/lain-cli.tar.gz" -C "$TEMP_DIR"
-}
-
-# 从源码构建（如果没有预编译版本）
-build_from_source() {
-    print_info "从源码构建..."
-    
-    if ! command -v go >/dev/null 2>&1; then
-        print_error "未找到 Go 编译器，请先安装 Go 1.25+"
-        exit 1
-    fi
-    
-    # 克隆仓库或复制当前目录内容
-    cp -r ./* "$TEMP_DIR/"
-    cd "$TEMP_DIR"
-    go build -o lain-cli .
+    return 0
 }
 
 # 安装文件
@@ -131,11 +134,11 @@ install_files() {
     
     # 复制配置文件示例（如果不存在）
     if [ ! -f "${CONFIG_DIR}/config.yaml" ]; then
-        if [ -f "${TEMP_DIR}/config.yaml.example" ]; then
-            cp "${TEMP_DIR}/config.yaml.example" "${CONFIG_DIR}/config.yaml"
+        if [ -f "${TEMP_DIR}/config.yaml" ]; then
+            cp "${TEMP_DIR}/config.yaml" "${CONFIG_DIR}/config.yaml"
             print_info "已创建配置文件: ${CONFIG_DIR}/config.yaml"
         else
-            print_warn "未找到配置文件示例"
+            print_warn "未找到配置文件"
         fi
     else
         print_info "配置文件已存在: ${CONFIG_DIR}/config.yaml"
@@ -162,11 +165,12 @@ main() {
     check_root
     detect_platform
     create_temp_dir
+    get_latest_version
     
-    # 尝试下载预编译版本，如果失败则从源码构建
-    if ! download_latest; then
-        print_warn "无法下载预编译版本，尝试从源码构建"
-        build_from_source
+    # 下载预编译版本
+    if ! download_prebuilt; then
+        print_error "无法下载预编译版本"
+        exit 1
     fi
     
     install_files
