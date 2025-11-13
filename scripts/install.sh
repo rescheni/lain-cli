@@ -10,20 +10,20 @@ NC='\033[0m' # No Color
 
 # 打印信息的函数
 print_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
+    printf "%b[INFO]%b %s\n" "$GREEN" "$NC" "$1"
 }
 
 print_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
+    printf "%b[WARN]%b %s\n" "$YELLOW" "$NC" "$1"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    printf "%b[ERROR]%b %s\n" "$RED" "$NC" "$1"
 }
 
 # 检查是否以 root 权限运行
 check_root() {
-    if [[ $EUID -eq 0 ]]; then
+    if [ "$EUID" = "0" ]; then
         print_warn "不建议以 root 用户运行此安装脚本"
     fi
 }
@@ -120,30 +120,54 @@ install_files() {
     # 创建安装目录
     mkdir -p "$INSTALL_DIR"
     
-    # 复制二进制文件
-    if [ -f "${TEMP_DIR}/lain-cli" ]; then
-        cp "${TEMP_DIR}/lain-cli" "$INSTALL_DIR/"
-        chmod +x "${INSTALL_DIR}/lain-cli"
-        print_info "已安装 lain-cli 到 $INSTALL_DIR/lain-cli"
+    # 检查是否为更新操作
+    if [ -f "${INSTALL_DIR}/lain-cli" ]; then
+        print_info "检测到已有安装，执行更新操作"
+        
+        # 只复制二进制文件
+        if [ -f "${TEMP_DIR}/lain-cli" ]; then
+            cp "${TEMP_DIR}/lain-cli" "$INSTALL_DIR/"
+            chmod +x "${INSTALL_DIR}/lain-cli"
+            print_info "已更新 lain-cli 二进制文件到 $INSTALL_DIR/lain-cli"
+        else
+            print_error "未找到编译后的二进制文件"
+            exit 1
+        fi
+        
+        # 更新 logo 文件（如果存在）
+        if [ -f "${TEMP_DIR}/ascii-logo.txt" ] && [ ! -f "${INSTALL_DIR}/ascii-logo.txt" ]; then
+            cp "${TEMP_DIR}/ascii-logo.txt" "$INSTALL_DIR/"
+            print_info "已安装logo文件到 $INSTALL_DIR/ascii-logo.txt"
+        fi
     else
-        print_error "未找到编译后的二进制文件"
-        exit 1
-    fi
-    
-    # 复制配置文件
-    if [ -f "${TEMP_DIR}/config.yaml" ]; then
-        cp "${TEMP_DIR}/config.yaml" "$INSTALL_DIR/"
-        print_info "已安装配置文件到 $INSTALL_DIR/config.yaml"
-    else
-        print_warn "未找到配置文件"
-    fi
-    
-    # 复制logo文件
-    if [ -f "${TEMP_DIR}/ascii-logo.txt" ]; then
-        cp "${TEMP_DIR}/ascii-logo.txt" "$INSTALL_DIR/"
-        print_info "已安装logo文件到 $INSTALL_DIR/ascii-logo.txt"
-    else
-        print_warn "未找到logo文件"
+        # 全新安装
+        print_info "执行全新安装"
+        
+        # 复制二进制文件
+        if [ -f "${TEMP_DIR}/lain-cli" ]; then
+            cp "${TEMP_DIR}/lain-cli" "$INSTALL_DIR/"
+            chmod +x "${INSTALL_DIR}/lain-cli"
+            print_info "已安装 lain-cli 到 $INSTALL_DIR/lain-cli"
+        else
+            print_error "未找到编译后的二进制文件"
+            exit 1
+        fi
+        
+        # 复制配置文件
+        if [ -f "${TEMP_DIR}/config.yaml" ]; then
+            cp "${TEMP_DIR}/config.yaml" "$INSTALL_DIR/"
+            print_info "已安装配置文件到 $INSTALL_DIR/config.yaml"
+        else
+            print_warn "未找到配置文件"
+        fi
+        
+        # 复制logo文件
+        if [ -f "${TEMP_DIR}/ascii-logo.txt" ]; then
+            cp "${TEMP_DIR}/ascii-logo.txt" "$INSTALL_DIR/"
+            print_info "已安装logo文件到 $INSTALL_DIR/ascii-logo.txt"
+        else
+            print_warn "未找到logo文件"
+        fi
     fi
 }
 
@@ -158,9 +182,9 @@ post_install_info() {
     echo ""
     print_info "已将 ${HOME}/.lain-cli 添加到 PATH 环境变量中:"
     echo "  export PATH=\$PATH:${HOME}/.lain-cli"
-    export PATH=$PATH:/home/coder/.lain-cli
+    export PATH=$PATH:${HOME}/.lain-cli
     echo ""
-    print_info "运行 '${HOME}/.lain-cli/lain-cli --help' 查看可用命令"
+    echo "运行 '${HOME}/.lain-cli/lain-cli --help' 查看可用命令"
 }
 
 # 主函数
