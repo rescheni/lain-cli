@@ -115,7 +115,7 @@ download_prebuilt() {
 
 # 安装文件
 install_files() {
-    INSTALL_DIR="${HOME}/lain-cli"
+    INSTALL_DIR="${HOME}/.lain-cli"
     
     # 创建安装目录
     mkdir -p "$INSTALL_DIR"
@@ -151,15 +151,16 @@ install_files() {
 post_install_info() {
     print_info "安装完成！"
     echo ""
-    print_info "文件已安装到: ${HOME}/lain-cli"
+    print_info "文件已安装到: ${HOME}/.lain-cli"
     echo ""
     print_info "目录内容:"
-    ls -la "${HOME}/lain-cli"
+    ls -la "${HOME}/.lain-cli"
     echo ""
-    print_info "请将 ${HOME}/lain-cli 添加到 PATH 环境变量中:"
-    echo "  export PATH=\$PATH:${HOME}/lain-cli"
+    print_info "已将 ${HOME}/.lain-cli 添加到 PATH 环境变量中:"
+    echo "  export PATH=\$PATH:${HOME}/.lain-cli"
+    export PATH=$PATH:/home/coder/.lain-cli
     echo ""
-    print_info "运行 '${HOME}/lain-cli/lain-cli --help' 查看可用命令"
+    print_info "运行 '${HOME}/.lain-cli/lain-cli --help' 查看可用命令"
 }
 
 # 主函数
@@ -181,7 +182,9 @@ main() {
     post_install_info
 }
 
+# 改进的脚本执行检查方式，修复 Bad substitution 错误
 # 如果直接运行此脚本，则执行 main 函数
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+script_name="$0"
+if [ "${script_name#-}" = "$script_name" ]; then
     main "$@"
 fi
