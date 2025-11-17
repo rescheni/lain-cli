@@ -171,6 +171,44 @@ install_files() {
     fi
 }
 
+# 将路径添加到 shell 配置文件中以实现永久生效
+add_to_shell_config() {
+    INSTALL_DIR="${HOME}/.lain-cli"
+    EXPORT_LINE="export PATH=\$PATH:${INSTALL_DIR}"
+    
+    # 检测用户的 shell 类型
+    USER_SHELL=$(basename "$SHELL")
+    
+    # 确定配置文件路径
+    case "$USER_SHELL" in
+        bash)
+            SHELL_CONFIG="${HOME}/.bashrc"
+            ;;
+        zsh)
+            SHELL_CONFIG="${HOME}/.zshrc"
+            ;;
+        *)
+            SHELL_CONFIG="${HOME}/.profile"
+            ;;
+    esac
+    
+    # 检查配置文件是否存在，不存在则创建
+    if [ ! -f "$SHELL_CONFIG" ]; then
+        touch "$SHELL_CONFIG"
+    fi
+    
+    # 检查是否已经添加过该路径
+    if ! grep -qF "$EXPORT_LINE" "$SHELL_CONFIG"; then
+        echo "" >> "$SHELL_CONFIG"
+        echo "# Added by lain-cli installer" >> "$SHELL_CONFIG"
+        echo "$EXPORT_LINE" >> "$SHELL_CONFIG"
+        print_info "已将路径添加到 $SHELL_CONFIG"
+        print_info "请运行 'source $SHELL_CONFIG' 或重新打开终端使更改生效"
+    else
+        print_info "路径已在 $SHELL_CONFIG 中配置"
+    fi
+}
+
 # 显示安装后说明
 post_install_info() {
     print_info "安装完成！"
@@ -185,7 +223,13 @@ post_install_info() {
     export PATH=$PATH:${HOME}/.lain-cli
     echo ""
     echo "运行 '${HOME}/.lain-cli/lain-cli --help' 查看可用命令"
+    echo ""
+    echo "注意：为了让 lain-cli 命令在所有新的终端会话中都可用，请执行以下操作之一："
+    echo "1. 运行 'source ~/.bashrc' (或者对应的 shell 配置文件)"
+    echo "2. 重新打开您的终端"
 }
+
+// ... existing code ...
 
 # 主函数
 main() {
