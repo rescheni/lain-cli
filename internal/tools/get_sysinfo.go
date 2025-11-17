@@ -14,6 +14,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
 	config "github.com/rescheni/lain-cli/config"
+	"github.com/rescheni/lain-cli/internal/utils"
 	logs "github.com/rescheni/lain-cli/logs"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -49,7 +50,8 @@ const (
 )
 
 func BasePrint() {
-	txt, err := os.OpenFile(config.Conf.Logo.Logo_txt, os.O_RDONLY, 0660)
+	logoConfurl := utils.ExpandPath(config.Conf.Logo.Logo_txt)
+	txt, err := os.OpenFile(logoConfurl, os.O_RDONLY, 0660)
 	if err != nil {
 		logs.Err("open logo txt err", err)
 		return

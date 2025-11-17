@@ -1,4 +1,4 @@
-package utils
+package tools
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	config "github.com/rescheni/lain-cli/config"
 )
 
-type info struct {
+type yy_info struct {
 	Hitokoto string `json:"hitokoto"`
 	From     string `json:"from"`
 }
@@ -22,7 +22,7 @@ func Getyiyn() string {
 		return ""
 	}
 	// 发送get请求 json 数据
-	var infoo info
+	var infoo yy_info
 	resp, err := http.Get(url + "?encode=json")
 	if err != nil {
 		return "一言接口错误/网络错误"

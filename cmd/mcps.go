@@ -16,6 +16,7 @@ import (
 
 	"github.com/rescheni/lain-cli/config"
 	"github.com/rescheni/lain-cli/internal/tools"
+	"github.com/rescheni/lain-cli/internal/utils"
 	logs "github.com/rescheni/lain-cli/logs"
 
 	"github.com/spf13/cobra"
@@ -148,17 +149,18 @@ var editCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 		var editorCmd *exec.Cmd
+		mcpsConfig := utils.ExpandPath(config.Conf.Mcp.Json)
 		if len(args) == 0 {
 			_, err = exec.LookPath("vim")
 			if err != nil {
 				_, err = exec.LookPath("nano")
 				if err == nil {
-					editorCmd = exec.Command("nano", config.Conf.Mcp.Json)
+					editorCmd = exec.Command("nano")
 				} else {
 					err = errors.New("no vim/nano")
 				}
 			} else {
-				editorCmd = exec.Command("vim", config.Conf.Mcp.Json)
+				editorCmd = exec.Command("vim", mcpsConfig)
 
 			}
 		} else {
@@ -166,13 +168,13 @@ var editCmd = &cobra.Command{
 			if err != nil {
 				err = errors.New("no " + args[0])
 			} else {
-				editorCmd = exec.Command(args[0], config.Conf.Mcp.Json)
+				editorCmd = exec.Command(args[0], mcpsConfig)
 			}
 		}
 		if err != nil {
 			logs.Err("edit file err : ", err)
 		} else {
-			logs.Info("open " + config.Conf.Mcp.Json + " OK")
+			logs.Info("open " + mcpsConfig + " OK")
 			editorCmd.Stdin = os.Stdin
 			editorCmd.Stdout = os.Stdout
 			editorCmd.Stderr = os.Stderr

@@ -35,9 +35,9 @@ var testPortCmd = &cobra.Command{
 	Use:   "port <ip> [flags]",
 	Short: "Test network ports  测试端口连通性",
 	Example: `
-  lain test port 192.168.1.1                	# 默认扫描常用端口
-  lain test port 192.168.1.1 -s 20 -e 8080    	# 扫描端口范围 20-8080
-  lain test port 192.168.1.1 -p 22 80 443   	# 测试指定端口
+  lain-cli test port 192.168.1.1                	# 默认扫描常用端口
+  lain-cli test port 192.168.1.1 -s 20 -e 8080    	# 扫描端口范围 20-8080
+  lain-cli test port 192.168.1.1 -p 22 80 443   	# 测试指定端口
 `,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {

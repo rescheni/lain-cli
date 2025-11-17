@@ -17,8 +17,8 @@ context:
 
 # mcp 文件位置
 mcp:
-  json: "/your/path/mcp.json"
+  json: "~/.lain-cli/mcp.json"
 
 # info 信息的logo位置
 logo:
-  logo_txt: "/your/path/ascii-logo.txt"
+  logo_txt: "~/.lain-cli/ascii-logo.txt"

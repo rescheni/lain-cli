@@ -9,6 +9,7 @@ import (
 	"regexp"
 
 	mui "github.com/rescheni/lain-cli/internal/ui"
+	"github.com/rescheni/lain-cli/internal/utils"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/rescheni/lain-cli/config"
@@ -28,7 +29,8 @@ type MCPServer struct {
 }
 
 func Init() error {
-	err := initMCPs(config.Conf.Mcp.Json)
+	mcpConfurl := utils.ExpandPath(config.Conf.Mcp.Json)
+	err := initMCPs(mcpConfurl)
 	if err != nil {
 		logs.Err("open mcp.json", err)
 		logs.Err("MCP Location " + config.Conf.Mcp.Json + " open error")

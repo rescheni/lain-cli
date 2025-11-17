@@ -4,6 +4,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/rescheni/lain-cli/internal/utils"
 	"gopkg.in/yaml.v2"
 )
 
@@ -41,7 +42,11 @@ type Config struct {
 var Conf Config
 
 func init() {
-	data, err := os.ReadFile("./config.yaml")
+	url := os.Getenv("LAINCLI_CONF_URL")
+	if url == "" {
+		url = utils.ExpandPath("~/.lain-cli/config.yaml")
+	}
+	data, err := os.ReadFile(url)
 	if err != nil {
 		return
 	}

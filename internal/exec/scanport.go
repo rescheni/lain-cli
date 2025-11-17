@@ -27,7 +27,7 @@ var Rfun func()
 func RunNmap(ip string, begin, end int) {
 
 	if begin > end {
-		logs.Err(fmt.Sprintln(begin, ">", end))
+		logs.Fatal(fmt.Sprintln(begin, ">", end))
 		return
 	}
 	pool := tools.NewDefaultPools()

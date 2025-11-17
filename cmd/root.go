@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/rescheni/lain-cli/internal/tools"
 	"github.com/rescheni/lain-cli/internal/utils"
 	"github.com/spf13/cobra"
 )
@@ -47,7 +48,7 @@ var rootCmd = &cobra.Command{
 		// 渐变着色 Logo
 		banner := gradient(logo, colors)
 
-		yiyanstring := utils.Getyiyn()
+		yiyanstring := tools.Getyiyn()
 
 		// 描述信息
 		desc := lipgloss.NewStyle().
