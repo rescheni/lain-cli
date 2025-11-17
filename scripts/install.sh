@@ -229,8 +229,6 @@ post_install_info() {
     echo "2. 重新打开您的终端"
 }
 
-// ... existing code ...
-
 # 主函数
 main() {
     print_info "开始安装 lain-cli"
