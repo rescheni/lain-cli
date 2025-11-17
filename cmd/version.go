@@ -13,10 +13,10 @@ import (
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "View Lain Version",
+	Short: "View Lain-cli Version",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Lain-cli version lain0.1.0", runtime.GOOS, runtime.GOARCH)
+		fmt.Println("Lain-cli version lain1.0.0", runtime.GOOS, runtime.GOARCH)
 	},
 }
 

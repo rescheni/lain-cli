@@ -90,8 +90,8 @@ var testSpeedCmd = &cobra.Command{
 	Use:   "speed",
 	Short: "Test network speed  测试网速",
 	Example: `
-  lain test speed       # 进行普通测速
-  lain test speed -u    # 使用 UI 模式测速
+  lain-cli test speed       # 进行简单ui测速
+  lain-cli test speed -n    # 使用命令行模式测速
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		exec.RunSpeedTestUI(nuiFlag)

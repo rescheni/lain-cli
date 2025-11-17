@@ -59,7 +59,7 @@ func GetInfo(reqProc string, resp []byte) string {
 			return "MYSQL"
 		}
 
-		return "Lain Don't Know"
+		return "Lain-cli Don't Know"
 	}
 	if reqProc == "REDIS" {
 		if string(resp)[:5] == "+PONG" {

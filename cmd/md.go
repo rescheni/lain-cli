@@ -14,10 +14,10 @@ import (
 )
 
 var mdCmd = &cobra.Command{
-	Use: "md",
+	Use:   "md",
 	Short: "rendering markdown		# 在 terminal 查看markdown 更好的方式",
 	Long: `
-lain md filename.md
+lain-cli md filename.md
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
